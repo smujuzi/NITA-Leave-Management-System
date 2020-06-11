@@ -5,7 +5,7 @@ from django.views.generic import CreateView
 from .forms import LeaveForm
 
 #auth_stuff
-from adminDashboard.forms import UserRegistrationForm
+#from adminDashboard.forms import UserRegistrationForm
 
 
 
@@ -16,6 +16,8 @@ def home(request):
     return render(request, 'index.html')
 
 
+def profile(request):
+    return render(request, 'profile.html')
 
 class ApplyLeaveView(CreateView):
     # return render(request,'leaves_form.html')

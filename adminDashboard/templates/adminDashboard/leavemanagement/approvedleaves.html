@@ -93,12 +93,12 @@
                           <a class="btn btn-primary btn-sm" href="#">
                               <i class="fas fa-folder">
                               </i>
-                              View
+                              View Details
                           </a>
-                          <a class="btn btn-info btn-sm" href="#">
+                          <a class="btn btn-info btn-sm" href="data-toggle="modal" data-target="#modalLoginForm">
                               <i class="fas fa-pencil-alt">
                               </i>
-                              Edit
+                              Approve
                           </a>
                           
                       </td>
@@ -114,6 +114,49 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
+
+
+  <!--model starts here-->
+      <form method="POST" action="">
+      {% csrf_token %}
+          <div class="modal fade" id="modalLoginForm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+                aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header text-center">
+                <h4 class="modal-title w-100 font-weight-bold">Approve</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+
+              <div class="modal-body mx-3">
+                    <div class="form-group">
+                      <label>Actions</label>
+                        <select class="form-control">
+                          
+                            <option>{{object.Approval_by_Line_Manager}}</option>
+                            
+                         
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                      <label>Description</label>
+                      <textarea class="form-control" rows="3" placeholder="Enter ..."></textarea>
+                    </div>
+              </div>
+
+              <div class="modal-footer d-flex justify-content-center">
+                <button class="btn btn-primary">submit</button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+    </div>
+  </form>
+  <!--model ends here-->
  
 
 {% endblock content %}

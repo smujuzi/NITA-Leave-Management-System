@@ -27,7 +27,6 @@
   <link rel="stylesheet" href="{% static 'employeeDashboard/plugins/daterangepicker/daterangepicker.css'%}">
   <!-- summernote -->
   <link rel="stylesheet" href="{% static 'employeeDashboard/plugins/summernote/summernote-bs4.css'%}">
- 
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">
@@ -43,6 +42,14 @@
 
 
 {% endblock content %}
+
+{% if messages %}
+  {% for message in messages %}
+   <div class=" alert alert-{{message.tags}}">
+       {{message}}
+   </div>
+  {% endfor %}
+{% endif %}
 
 <footer class="main-footer">
     <strong>Proudly coded by &copy; 2019-2020 <a href="#">Interns(Daniel and Fahad)</a>.</strong>
