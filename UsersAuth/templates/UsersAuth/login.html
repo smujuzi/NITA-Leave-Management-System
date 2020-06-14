@@ -1,10 +1,11 @@
 {% extends 'UsersAuth/user_auth_base.html' %}
 {% block content %}
-
+{% load static %}
 <body class="hold-transition login-page">
 <div class="login-box">
   <div class="login-logo">
-    <a href="../../index2.html"><b>NITA-</b>LMS</a>
+    <img src= "{% static 'essential/logo.png' %}" alt="AdminLTE Logo"  style="width:100px;height:50px;">
+    
   </div>
   <!-- /.login-logo -->
   <div class="card">
@@ -43,9 +44,10 @@
         </div>
       </form>
 
+    
       </p>
       <p class="mb-0">
-        <a href="" class="text-center">Dont have an account? Register here</a>
+        <a href="{% url 'register'%}" class="text-center">Dont have an account? Register here</a>
       </p>
     </div>
     <!-- /.login-card-body -->

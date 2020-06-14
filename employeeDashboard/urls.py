@@ -2,8 +2,6 @@ from django.urls import path
 from employeeDashboard import views as employee_views
 
 
-
-
 urlpatterns = [
     path('', employee_views.home, name="EmpLogin"),
     path('leavehistory', employee_views.leave_history, name="history"),
