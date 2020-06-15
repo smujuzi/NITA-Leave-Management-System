@@ -3,7 +3,7 @@
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
     <a href="#" class="brand-link">
-      <img src="{% static 'essential/logo.png' %}" alt="AdminLTE Logo" class="brand-image  "
+      <img src="{% static 'essential/logo.png' %}" alt=" Logo" class="brand-image  "
            style="">
       <span class="brand-text font-weight-light">NITA-U LMS</span>
     </a>
@@ -56,6 +56,14 @@
               <i class="nav-icon fas fa-th"></i>
               <p>
                 Leave History
+              </p>
+            </a>
+          </li>
+           <li class="nav-item">
+            <a href="{% url 'logout' %}" class="nav-link">
+              <i class="nav-icon fas fa-th"></i>
+              <p>
+                Logout
               </p>
             </a>
           </li>

@@ -1,20 +1,22 @@
 {% extends 'UsersAuth/user_auth_base.html' %}
 {% block content %}
-
+{% load static %}
+{% load crispy_forms_tags %}
 
 <body class="hold-transition register-page">
 <div class="register-box">
   <div class="register-logo">
-    <a href="../../index2.html"><b>Admin</b>LTE</a>
+    <img src= "{% static 'essential/logo.png' %}" alt="AdminLTE Logo"  style="width:100px;height:50px;">
+    
   </div>
 
   <div class="card">
     <div class="card-body register-card-body">
-      <p class="login-box-msg">Register a new membership</p>
+      <p class="login-box-msg">Register Employee</p>
     
       <form action="" method="POST">
       {% csrf_token %}
-      {{form}}
+      {{form.username | as_crispy_field}}
         <div class="input-group mb-3">
           <input type="text" class="form-control" placeholder="Full name">
           <div class="input-group-append">
@@ -32,7 +34,7 @@
           </div>
         </div>
         <div class="input-group mb-3">
-          <input type="password" class="form-control" placeholder="Password">
+          {{UserCreationForm.username }}
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-lock"></span>
@@ -55,6 +57,7 @@
           </div>
           <!-- /.col -->
         </div>
+        {{form.errors}}
       </form>
 
 
@@ -64,5 +67,16 @@
   </div><!-- /.card -->
 </div>
 <!-- /.register-box -->
+<script>
+     var  form_fields = document.getElementsByTagName('input')
+          form_fields[1].placeholder ='User name';
+          form_fields[2].placeholder ='email';
+          form_fields[3].placeholder ='Enter Password';
+          form_fields[4].placeholder ='Repeat Password';
 
+        for( var field in form_fields ){
+            form_fields[field].className += 'form-control'
+        }
+
+ </script>
 {% endblock content %}

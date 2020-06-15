@@ -2,6 +2,7 @@ from django.shortcuts import render
 from adminDashboard.models import *
 from employeeDashboard.models import *
 from django.views.generic import CreateView
+from django.contrib.auth.decorators import login_required
 from .forms import LeaveForm
 
 #auth_stuff
@@ -12,10 +13,11 @@ from .forms import LeaveForm
 #from .forms import AddressForm
 from django.urls import reverse_lazy
 
+@login_required
 def home(request):
     return render(request, 'index.html')
 
-
+@login_required
 def profile(request):
     return render(request, 'profile.html')
 
@@ -27,7 +29,7 @@ class ApplyLeaveView(CreateView):
     success_url = reverse_lazy('history')
     
 
-
+@login_required
 def leave_history(request):
     leave_history = Leaves.objects.all()
     
