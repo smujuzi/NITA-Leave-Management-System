@@ -19,7 +19,6 @@ class Leaves(models.Model):
     )
     #Reference_id = models.CharField(max_length=100, null=True, default='NITA/LMS/001')
     name        = models.CharField(max_length=200, null=True)
-
     DateApplied = models.DateField(auto_now=False)
     StartDate   = models.DateField(auto_now=False)
     EndDate     = models.DateField(auto_now=False)

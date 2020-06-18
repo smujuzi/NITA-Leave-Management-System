@@ -36,7 +36,10 @@
         <div class="row ml-4">
 
            
-            
+            <div class="col-sm-4">
+                {{form.name | as_crispy_field }}
+            </div>
+
             <div class="col-sm-4">
                 {{form.DateApplied | as_crispy_field }}
             </div>
@@ -52,6 +55,27 @@
                     {{form.LeaveType | as_crispy_field }}
             </div>
 
+            <div class="col-sm-4">
+                {{form.empDirector | as_crispy_field }}
+            </div>
+
+            <div class="col-sm-4">
+                {{form.empDepartment | as_crispy_field }}
+            </div>
+
+            <div class="col-sm-4">
+                {{form.empDirectorate | as_crispy_field }}
+            </div>
+
+            <div class="col-sm-4">
+                {{form.OutstandingLeaveDays | as_crispy_field }}
+            </div>
+
+            <div class="col-sm-4">
+                {{form.NumberOfDaystaken | as_crispy_field }}
+            </div>
+            
+ 
 
         </div>
         <button class=" ml-5 btn btn-primary" type="submit" value="submit"> apply </button>        
