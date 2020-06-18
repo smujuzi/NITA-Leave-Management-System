@@ -3,6 +3,7 @@
 {% load static %}
 {% load crispy_forms_tags %}
 
+
 <body class="hold-transition register-page">
 <div class="register-box">
   <div class="register-logo">
@@ -16,9 +17,9 @@
     
       <form action="" method="POST">
       {% csrf_token %}
-      {{form.username | as_crispy_field}}
+    
         <div class="input-group mb-3">
-          <input type="text" class="form-control" placeholder="Full name">
+           {{form.username }}
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-user"></span>
@@ -26,7 +27,7 @@
           </div>
         </div>
         <div class="input-group mb-3">
-          <input type="email" class="form-control" placeholder="Email">
+           {{form.email  }}
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-envelope"></span>
@@ -34,7 +35,8 @@
           </div>
         </div>
         <div class="input-group mb-3">
-          {{UserCreationForm.username }}
+         
+          {{form.password1  }}
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-lock"></span>
@@ -42,7 +44,7 @@
           </div>
         </div>
         <div class="input-group mb-3">
-          <input type="password" class="form-control" placeholder="Retype password">
+           {{form.password2  }}
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-lock"></span>
@@ -57,10 +59,9 @@
           </div>
           <!-- /.col -->
         </div>
-        {{form.errors}}
       </form>
 
-
+      <p> {{form.errors}}  </p>
       <a href="{% url 'login'%}" class="text-center">I already have an account? Login</a>
     </div>
     <!-- /.form-box -->

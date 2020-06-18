@@ -13,13 +13,6 @@ from .forms import LeaveForm
 #from .forms import AddressForm
 from django.urls import reverse_lazy
 
-@login_required
-def home(request):
-    return render(request, 'index.html')
-
-@login_required
-def profile(request):
-    return render(request, 'profile.html')
 
 class ApplyLeaveView(CreateView):
     # return render(request,'leaves_form.html')
