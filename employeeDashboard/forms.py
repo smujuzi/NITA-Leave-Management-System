@@ -23,12 +23,19 @@ class DateTimeInput(forms.DateTimeInput):
 
 
 class LeaveForm(forms.ModelForm):
+
+    OutstandingLeaveDays = forms.IntegerField(widget=forms.TextInput(
+                                   attrs={'readonly': 'readonly', 'placeholder': '30'}))
+
+    name = forms.CharField(widget=forms.TextInput(
+                                   attrs={'readonly': 'readonly'}))
+
     class Meta:
         model = Leaves
         fields = ['name','DateApplied', 'StartDate',
                 'EndDate','OutstandingLeaveDays', 'NumberOfDaystaken',
                 'LeaveType','empDirector',
-                'empDirectorate', 'empDepartment']
+                'empDirectorate', 'empDepartment', 'file_upload']
                 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

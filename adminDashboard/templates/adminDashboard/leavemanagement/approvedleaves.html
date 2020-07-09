@@ -61,46 +61,56 @@
                   </tr>
               </thead>
               <tbody>
-
+                {% for leaves in approved_leave %}
                   <tr>
                       <td>
-                          #
+                          {{leaves.pk}}
                       </td>
                       <td>
                           <a>
-                              AdminLTE v3
+                              {{leaves.name}}
                           </a>
                           <br/>
                           <small>
-                              Created 01.01.2019
+                              Applied on  {{leaves.DateApplied}}
                           </small>
                       </td>
                       <td>
                           <ul class="list-inline">
-                              
+
                               <li class="list-inline-item">
-                                  12/01/2020
+                                  {{leaves.empDirectorate}}
+                              </li>
+                          </ul>
+                      </td>
+                      <td>
+                          <ul class="list-inline">
+
+                              <li class="list-inline-item">
+                                  {{leaves.empDepartment}}
                               </li>
                           </ul>
                       </td>
                       <td class="project_progress">
-                          77% Complete
+                          {{leaves.LeaveType}}
                       </td>
                       <td class="project-state">
-                          <span class="badge badge-success">Approved</span>
+
+                          {% if  leaves.Approval_by_Line_Manager == 'Approved' %}
+                              <span class="badge badge-success">Approved</span>
+                          {% else %}
+                              <li class="list-item"> {{leaves.Approval_by_Line_Manager}} </li>
+                          {% endif %}
+
                       </td>
                       <td class="project-actions text-right">
-                          <a class="btn btn-primary btn-sm" href="#">
+                          <a class="btn btn-primary btn-sm" href="{{leaves.get_absolute_url}}">
                               <i class="fas fa-folder">
                               </i>
                               View Details
                           </a>
-                          <a class="btn btn-info btn-sm" href="data-toggle="modal" data-target="#modalLoginForm">
-                              <i class="fas fa-pencil-alt">
-                              </i>
-                              Approve
-                          </a>
-                          
+
+                      {% endfor %}
                       </td>
                   </tr>
               </tbody>

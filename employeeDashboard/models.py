@@ -23,21 +23,20 @@ class Leaves(models.Model):
     StartDate   = models.DateField(auto_now=False)
     EndDate     = models.DateField(auto_now=False)
 
-    OutstandingLeaveDays = models.IntegerField(null=True)
+    OutstandingLeaveDays = models.IntegerField(null=True, default=30)
     NumberOfDaystaken    = models.IntegerField(null=True)
-    LeaveType            = models.CharField(max_length=300, choices=LeaveTypeList, null=True) 
+    LeaveType            = models.CharField(max_length=300, choices=LeaveTypeList, null=True)
+    file_upload          = models.FileField(upload_to='documents/files/')
    
     empDirectorate = models.ForeignKey(Directories,on_delete=models.SET_NULL, null=True)
     empDepartment = models.ForeignKey(Departments,on_delete=models.SET_NULL, null=True)
     empDirector = models.ForeignKey(Director,on_delete=models.CASCADE, null=True)
 
-    Approval_by_Line_Manager = models.CharField(choices= Approve.status, max_length=10, default='Pending')
-    Approval_by_Director = models.CharField(choices= Approve.status, max_length=10, default='Pending')
-    Approval_by_Executive_Director = models.CharField(choices= Approve.status, max_length=10, default='Pending')
+    Approval_by_Line_Manager = models.CharField(max_length=10, default='Pending')
+    Approval_by_Director = models.CharField(max_length=10, default='Pending')
+    Approval_by_Executive_Director = models.CharField(max_length=10, default='Pending')
 
     def get_absolute_url(self):
-        return reverse("adminDashboard:LeaveDetailView", kwargs = {
-            'pk':self.pk
-        })
+        return reverse("adminDashboard:LeaveDetailView")
     def __str__(self):
         return self.name

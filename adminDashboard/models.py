@@ -4,10 +4,10 @@ from django.db import models
 
 class Approve(models.Model):
     status = (
-        ( 'Approved','Approved'),
-        ( 'Rejected','rejected'),
-        ( 'Pending','Pending')
-    ) 
+        ('Approved','Approved'),
+        ('Rejected','Rejected'),
+        ('Pending','Pending')
+    )
     leave_status = models.CharField(choices=status, max_length=20, null=True)
     date_approved = models.DateField(auto_now=True)
     notes = models.TextField(null=True, max_length=35)
@@ -46,6 +46,12 @@ class Director(models.Model):
 class LineManager(models.Model):
     name = models.CharField(max_length=200, null=True)
     Departments_under = models.ForeignKey(Departments,on_delete=models.CASCADE, null=True)
+
+    def __str__(self):
+        return self.name
+
+class ExecutiveDirector(models.Model):
+    name = models.CharField(max_length=200, null=True)
 
     def __str__(self):
         return self.name
