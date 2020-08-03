@@ -73,7 +73,7 @@ gunicorn==20.0.4
 h5py==2.9.0
 heapdict==1.0.0
 html5lib==1.0.1
-httplib2==0.17.0
+httplib2==0.18.0
 idna==2.9
 imageio==2.5.0
 imagesize==1.1.0
