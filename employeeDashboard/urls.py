@@ -9,6 +9,8 @@ from employeeDashboard import views as employee_views
 from employeeDashboard.views import ApplyLeaveView
 from adminDashboard.views import admin_view
 
+app_name = 'employeeDashboard'
+
 urlpatterns = [
     path('leavehistory', employee_views.leave_history, name="history"),
     path('', ApplyLeaveView.as_view(), name="apply"),

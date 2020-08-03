@@ -6,6 +6,7 @@ from employeeDashboard.models import *
 class TimeInput(forms.TimeInput):
     input_type = "time"
 
+
 class DateInput(forms.DateInput):
     input_type = "date"
 
@@ -23,65 +24,41 @@ class DateTimeInput(forms.DateTimeInput):
 
 
 class LeaveForm(forms.ModelForm):
-
     OutstandingLeaveDays = forms.IntegerField(widget=forms.TextInput(
-                                   attrs={'readonly': 'readonly', 'placeholder': '30'}))
+        attrs={'readonly': 'readonly', 'placeholder': '26'}))
 
     name = forms.CharField(widget=forms.TextInput(
-                                   attrs={'readonly': 'readonly'}))
+        attrs={'readonly': 'readonly'}))
+
+    file_upload = forms.FileField(required=False)
 
     class Meta:
         model = Leaves
-        fields = ['name','DateApplied', 'StartDate',
-                'EndDate','OutstandingLeaveDays', 'NumberOfDaystaken',
-                'LeaveType','empDirector',
-                'empDirectorate', 'empDepartment', 'file_upload']
-                
+        fields = ['name', 'DateApplied', 'StartDate',
+                  'EndDate', 'OutstandingLeaveDays', 'NumberOfDaystaken',
+                  'LeaveType', 'empDirector',
+                  'empDirectorate', 'empDepartment', 'file_upload']
+
+        # added labels for each field above except name and outstandingLeaveDays since they're re-defined on line 27 and 30
+        # crispy_forms library expects a 'labels' dictionary mapping each field to its preferred label
+        labels = {
+            'DateApplied': 'Application Date',
+            'StartDate': '1st Day of Leave',
+            'EndDate': 'Last Day of Leave',
+            'NumberOfDaystaken': 'Number Of Days Taken',
+            'LeaveType': 'Type of Leave',
+            'empDirector': 'Director',
+            'empDirectorate': 'Directorate',
+            'empDepartment': 'Department',
+            'file_upload': 'Upload File'}
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["DateApplied"].widget = DateInput()
         self.fields["StartDate"].widget = DateInput()
         self.fields["EndDate"].widget = DateInput()
 
+        # added two labels here because they wont work in the labels dict
+        self.fields["name"].label = "Applicant Name"
+        self.fields["OutstandingLeaveDays"].label = "Leave Days Remaining"
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-'''
-STATES = (
-    ('', 'Choose...'),
-    ('MG', 'Minas Gerais'),
-    ('SP', 'Sao Paulo'),
-    ('RJ', 'Rio de Janeiro')
-)
-class AddressForm(forms.Form):
-    email = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Email'}))
-    password = forms.CharField(widget=forms.PasswordInput())
-    address_1 = forms.CharField(
-        label='Address',
-        widget=forms.TextInput(attrs={'placeholder': '1234 Main St'})
-    )
-    address_2 = forms.CharField(
-        widget=forms.TextInput(attrs={'placeholder': 'Apartment, studio, or floor'})
-    )
-    city = forms.CharField()
-    state = forms.ChoiceField(choices=STATES)
-    zip_code = forms.CharField(label='Zip')
-    check_me_out = forms.BooleanField(required=False)
-
-    '''

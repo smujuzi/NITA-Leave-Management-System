@@ -1,6 +1,7 @@
 from django.db import models
-from adminDashboard.models import Approve, Directories,Departments,Director
+from adminDashboard.models import Approve, Directories, Departments, Director
 from django.shortcuts import reverse
+
 # Create your models here.
 class Leaves(models.Model):
     class Meta:
@@ -8,25 +9,25 @@ class Leaves(models.Model):
         verbose_name_plural = "Applied leaves"
     
     LeaveTypeList = (
-        ('Annual','Annual'),
-        ('Sick','Sick'),
-        ('Maternity ','Maternity '),
-        ('Paternity','Paternity'),
-        ('Compassionate','Compassionate'),
-        ('Terminal / Long term illness ','Terminal / Long term illness '),
-        ('Study leave with pay ','Study leave with pay '),
-        ('Leave without pay ','Leave without pay ')
+        ('Annual', 'Annual'),
+        ('Sick', 'Sick'),
+        ('Maternity ', 'Maternity '),
+        ('Paternity', 'Paternity'),
+        ('Compassionate', 'Compassionate'),
+        ('Terminal / Long term illness ', 'Terminal / Long term illness '),
+        ('Study leave with pay ', 'Study leave with pay '),
+        ('Leave without pay ', 'Leave without pay ')
     )
     #Reference_id = models.CharField(max_length=100, null=True, default='NITA/LMS/001')
     name        = models.CharField(max_length=200, null=True)
-    DateApplied = models.DateField(auto_now=False)
+    DateApplied = models.DateTimeField(auto_now_add=False)
     StartDate   = models.DateField(auto_now=False)
     EndDate     = models.DateField(auto_now=False)
 
-    OutstandingLeaveDays = models.IntegerField(null=True, default=30)
+    OutstandingLeaveDays = models.IntegerField(null=False, default=26)
     NumberOfDaystaken    = models.IntegerField(null=True)
     LeaveType            = models.CharField(max_length=300, choices=LeaveTypeList, null=True)
-    file_upload          = models.FileField(upload_to='documents/files/')
+    file_upload          = models.FileField(upload_to='documents/files/', blank=True, null=True)
    
     empDirectorate = models.ForeignKey(Directories,on_delete=models.SET_NULL, null=True)
     empDepartment = models.ForeignKey(Departments,on_delete=models.SET_NULL, null=True)
@@ -35,6 +36,7 @@ class Leaves(models.Model):
     Approval_by_Line_Manager = models.CharField(max_length=10, default='Pending')
     Approval_by_Director = models.CharField(max_length=10, default='Pending')
     Approval_by_Executive_Director = models.CharField(max_length=10, default='Pending')
+
 
     def get_absolute_url(self):
         return reverse("adminDashboard:LeaveDetailView")

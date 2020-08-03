@@ -2,74 +2,75 @@
 {% block content %}
 {% load static %}
 {% load crispy_forms_tags %}
+{% load material_form %}
 <body class="hold-transition login-page">
 <div class="login-box">
-  <div class="login-logo">
-    <img src= "{% static 'essential/logo.png' %}" alt="AdminLTE Logo"  style="width:100px;height:50px;">
-    
-  </div>
-  <!-- /.login-logo -->
-  <div class="card">
-    <div class="card-body login-card-body">
-      <p class="login-box-msg">Sign in to apply for leave</p>
-      
-    
-      <form action="" method="post">
-      <div class="card">
-        <div class="card-body btn-danger">
-          {{form.errors}}
-        </div>
-      </div>
-        {% csrf_token %}
-          <div class="input-group mb-3">
-         {{ form.username}}
-          <div class="input-group-append">
-            <div class="input-group-text">
-              <span class="fas fa-envelope"></span>
-            </div>
-          </div>
-        </div>
-        <div class="input-group mb-3">
-          {{form.password}}
-          <div class="input-group-append">
-            <div class="input-group-text">
-              <span class="fas fa-lock"></span>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-8">
-            <div class="icheck-primary">
-              <label for="remember"> </label>
-            </div>
-          </div>
-    
-          <!-- /.col -->
-          <div class="col-4 text-center ">
-            <button type="submit" class=" btn btn-success btn-block">Sign In</button>
-          </div>
-          <!-- /.col -->
-        </div>
-      </form>
+    <div class="login-logo">
+        <img src="{% static 'essential/logo.png' %}" alt="AdminLTE Logo" style="width:100px;height:50px;">
 
-    
-      </p>
-      <p class="mb-0 text-center">
-        <a href="{% url 'register'%}" class="text-center">Dont have an account? Register here</a>
-      </p>
     </div>
-    <!-- /.login-card-body -->
-  </div>
+    <!-- /.login-logo -->
+    <div class="card">
+        <div class="card-body login-card-body">
+            <p class="login-box-msg">Sign in to apply for leave</p>
+
+            <form action="" method="post">
+                <div class="card">
+
+                    <div>
+                        {{login_form.errors}}
+                    </div>
+                </div>
+                {% csrf_token %}
+                <div class="input-group mb-3">
+                    {{ login_form.email }}
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-envelope"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group mb-3">
+                    {{login_form.password}}
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-lock"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-8">
+                        <div class="icheck-primary">
+                            <label for="remember"> </label>
+                        </div>
+                    </div>
+
+                    <!-- /.col -->
+                    <div class="col-12 text-center">
+                        <button type="submit" class=" btn btn-success btn-block">Sign In</button>
+                    </div>
+                    <!-- /.col -->
+                </div>
+            </form>
+
+
+            </p>
+            <p class="mb-0 text-center">
+                <a href="{% url 'register'%}" class="text-center">Dont have an account? Register here</a>
+            </p>
+        </div>
+        <!-- /.login-card-body -->
+    </div>
 </div>
 <!-- /.login-box -->
 <script>
      var  form_fields = document.getElementsByTagName('input')
-          form_fields[1].placeholder ='User name';
-          form_fields[2].placeholder ='password';
+          form_fields[1].placeholder ='Email';
+          form_fields[2].placeholder ='Password';
 
         for( var field in form_fields ){
             form_fields[field].className += 'form-control'
         }
 
- </script>
+</script>
 {% endblock content %}

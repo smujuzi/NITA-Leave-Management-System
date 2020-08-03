@@ -15,7 +15,7 @@ class Approve(models.Model):
 
 class Directories(models.Model):
     name = models.CharField(max_length=200, null=True)
-    # DateCreated = models.DateField(auto_now=False)
+
 
     def __str__(self):
         return self.name
@@ -25,11 +25,11 @@ class Departments(models.Model):
     class Meta:
         verbose_name = "Department"
         verbose_name_plural = "Departments"
-    # DepId = models.CharField(primary_key=True,max_length=200)
+
     directory = models.ForeignKey(Directories, on_delete=models.CASCADE)
     name = models.CharField(max_length=200, null=True)
     short_name = models.CharField(max_length=200, null=True)
-    # DateCreated = models.DateField(auto_now=False)
+
 
     def __str__(self):
         return self.name 
@@ -51,6 +51,13 @@ class LineManager(models.Model):
         return self.name
 
 class ExecutiveDirector(models.Model):
+    name = models.CharField(max_length=200, null=True)
+
+    def __str__(self):
+        return self.name
+
+
+class HR(models.Model):
     name = models.CharField(max_length=200, null=True)
 
     def __str__(self):

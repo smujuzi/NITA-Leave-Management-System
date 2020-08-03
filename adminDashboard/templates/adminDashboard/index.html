@@ -1,95 +1,78 @@
-
 {% extends 'adminDashboard/base.html' %}
 {% block content %}
 
- <!-- Content Wrapper. Contains page content -->
-  <div class="content-wrapper">
-      <!-- Content Header (Page header) -->
-      <div class="content-header">
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
         <div class="container-fluid">
-          <div class="row mb-2">
-            <div class="col-sm-6">
-              <h1 class="m-0 text-dark">Dashboard</h1>
-            </div><!-- /.col -->
-            <div class="col-sm-6">
-              <ol class="breadcrumb float-sm-right">
-                <li class="breadcrumb-item"><a href="#">Home</a></li>
-                <li class="breadcrumb-item active">Dashboard v1</li>
-              </ol>
-            </div><!-- /.col -->
-          </div><!-- /.row -->
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0 text-dark">Dashboard</h1>
+                </div><!-- /.col -->
+            </div><!-- /.row -->
         </div><!-- /.container-fluid -->
-      </div>
+    </div>
     <!-- /.content-header -->
-      <section class="content">
+    <section class="content">
         <div class="container-fluid">
-          <div class="row">
+            <div class="row">
                 <div class="col-lg-3 col-6">
-                  <!-- small box -->
-                  <div class="small-box bg-success">
-                    <div class="inner">
-                      <h3>{{ approved_leave.count }}</h3>
+                    <!-- small box -->
+                    <div class="small-box bg-success">
+                        <div class="inner">
+                            <h3>{{ approved_leave.count }}</h3>
 
-                      <p>Approved Leaves</p>
-                    </div>
-                    <div class="icon">
-                      <i class="ion ion-bag"></i>
-                    </div>
-                    <a href="{% url 'adminDashboard:approved'%}" class="small-box-footer">View </a>
+                            <p>Approved Leaves</p>
+                        </div>
+                        <div class="icon">
+                            <i class="ion ion-bag"></i>
+                        </div>
+                        <a href="{% url 'adminDashboard:approved'%}" class="small-box-footer">View </a>
 
-                  </div>
+                    </div>
                 </div>
                 <!-- ./col -->
                 <div class="col-lg-3 col-6">
-                  <!-- small box -->
-                  <div class="small-box bg-info">
-                    <div class="inner">
-                      <h3>{{ pending_leave.count }}<sup style="font-size: 20px"></sup></h3>
+                    <!-- small box -->
+                    <div class="small-box bg-info">
+                        <div class="inner">
+                            <h3>{{ pending_leave.count }}<sup style="font-size: 20px"></sup></h3>
 
-                      <p>Pending Leaves</p>
+                            <p>Pending Leaves</p>
+                        </div>
+                        <div class="icon">
+                            <i class="ion ion-stats-bars"></i>
+                        </div>
+                        <a href="{% url 'adminDashboard:pending' %}" class="small-box-footer">View </a>
                     </div>
-                    <div class="icon">
-                      <i class="ion ion-stats-bars"></i>
-                    </div>
-                    <a href="{% url 'adminDashboard:pending' %}" class="small-box-footer">View </a>
-                  </div>
                 </div>
                 <!-- ./col -->
-              
+
                 <!-- ./col -->
                 <div class="col-lg-3 col-6">
-                  <!-- small box -->
-                  <div class="small-box bg-danger">
-                    <div class="inner">
-                      <h3>{{ rejected_leave.count }}</h3>
+                    <!-- small box -->
+                    <div class="small-box bg-danger">
+                        <div class="inner">
+                            <h3>{{ rejected_leave.count }}</h3>
 
-                    <p>Rejected</p>
+                            <p>Rejected</p>
+                        </div>
+                        <div class="icon">
+                            <i class="ion ion-pie-graph"></i>
+                        </div>
+                        <a href="{% url 'adminDashboard:rejected' %}" class="small-box-footer">View </a>
                     </div>
-                    <div class="icon">
-                      <i class="ion ion-pie-graph"></i>
-                    </div>
-                    <a href="{% url 'adminDashboard:rejected' %}" class="small-box-footer">View </a>
-                  </div>
                 </div>
-        </div>
-      </section>
+            </div>
+    </section>
 
-{% for q in QuerySet1 %}
 
- 
-    
- 
-    <p> {{q.Approval_by_Director}} <p>
-   
 
-  
+</div>
 
-{% endfor %}
 
-  </div>
- 
 
- 
 
 {% endblock content %}
 

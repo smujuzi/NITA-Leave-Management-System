@@ -1,12 +1,15 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, HttpRequest
 from django.views.generic import ListView, DetailView, UpdateView
 from django.shortcuts import render, reverse
 from django.http import HttpResponse
 from adminDashboard.forms import ApprovalForm
 from adminDashboard.models import *
+from UsersAuth.models import Account
+from django.contrib import messages
+from django.views import View
 
-from leaveproject.decorators import *
+
 from employeeDashboard.models import Leaves
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
@@ -14,6 +17,12 @@ from django.urls import reverse_lazy
 from django.db.models import Q
 from django.core.mail import send_mail
 from django.contrib.auth.models import User
+from xlwt import Workbook
+import tempfile
+import os
+import datetime
+
+from .filters import LeaveFilter
 
 from adminDashboard.models import Approve
 
@@ -40,8 +49,72 @@ class Leave_tracker(View):
             print('application approved by the Executive Director')
 
 '''
+#Creates Excel document of all Leave Requests
+
+def convert_date(date_obj):
+    return date_obj.strftime("%a / %d /%m/ %Y")
 
 
+def export_members_excel(request):
+    logs = Leaves.objects.all().order_by('-DateApplied')  # prepend "-" to order the logs in descending order using date
+    data = [[obj.name, obj.empDirectorate.name, obj.empDepartment.name, obj.LeaveType, convert_date(obj.StartDate), convert_date(obj.EndDate), obj.OutstandingLeaveDays] for obj in logs]
+
+    headers = ['Employee Name', 'Directorate', 'Department', 'Leave Type', 'Start Date', 'End Date', 'Remaining Leave Days']
+    filename = 'leave_report_{}'.format(datetime.datetime.today().strftime("%Y-%m-%d_%H:%M"))
+    return export_logs(data, headers, filename)
+
+
+def export_logs(data, headers, filename):
+    STYLES = dict(
+        bold='font: bold 1',
+        italic='font: italic 1',
+
+        # Wrap text in the cell
+        wrap_bold='font: bold 1; align: wrap 1;',
+        wrap='align: wrap 1;',
+
+        # White text on a blue background
+        reversed='pattern: pattern solid, fore_color blue; font: color white, bold 1;',
+
+        # Light orange checkered background
+        light_orange_bg='pattern: pattern fine_dots, fore_color white, back_color orange;',
+
+        # Heavy borders
+        bordered='border: top thick, right thick, bottom thick, left thick;',
+
+        # 16 pt red text
+        big_red='font: height 320, color red;',
+    )
+
+    wb = Workbook()
+    ws = wb.add_sheet("first_sheet")
+    ws.fit_num_pages = 1
+    ws.fit_height_to_pages = 0
+    ws.fit_width_to_pages = 1
+
+    row_index = 0  # header to be written on first row
+    for col_index, header in enumerate(headers):
+        ws.write(row_index, col_index, header)  # Parameters for ws.write method are "row, column, data item, style"
+
+    row_index = 1  # Data starts on second row
+    for row in data:
+        for col, value in enumerate(row):
+            ws.write(row_index, col, value)
+        row_index += 1
+
+    fd, fn = tempfile.mkstemp()
+    os.close(fd)
+    wb.save(fn)
+    fh = open(fn, 'rb')
+    resp = fh.read()
+    fh.close()
+    response = HttpResponse(resp, content_type='application/ms-excel')  # change mimetype to content_type
+    response['Content-Disposition'] = 'attachment; filename={}.xls'.format(filename)
+    return response
+
+
+
+#Displays Admin dashbaord
 def admin_view(request):
     context = {}
 
@@ -50,10 +123,10 @@ def admin_view(request):
     director = Director.objects.filter(name=name)  # Filters for logged in user in list of Directors
     line_manager = LineManager.objects.filter(name=name)  # Filters for logged in user in list of Line Managers
     executive_director = ExecutiveDirector.objects.filter(name=name)  # Filters for logged in user in list of Executive Director
-    print("Inside Admin!")
+    hr = HR.objects.filter(name=name)  # Filters for logged in user in list of HR
 
-    if executive_director:  # Checks if logged in user is a director
-        print("This is the EXECUTIVE DIRECTOR!")
+
+    if hr:  # Checks if logged in user is HR
         pending_leave = Leaves.objects.filter(Q(Approval_by_Line_Manager='Pending') | Q(Approval_by_Director='Pending')
                                               | Q(Approval_by_Executive_Director='Pending')).order_by('DateApplied')
 
@@ -64,8 +137,18 @@ def admin_view(request):
                                                | Q(Approval_by_Director='Rejected')
                                                | Q(Approval_by_Executive_Director='Rejected')).order_by('DateApplied')
 
-    if director:  # Checks if logged in user is a director
-        print("This is a DIRECTOR!")
+    elif executive_director:  # Checks if logged in user is the executive director
+        pending_leave = Leaves.objects.filter(Q(Approval_by_Line_Manager='Pending') | Q(Approval_by_Director='Pending')
+                                              | Q(Approval_by_Executive_Director='Pending')).order_by('DateApplied')
+
+        approved_leave = Leaves.objects.filter(Approval_by_Line_Manager='Approved', Approval_by_Director='Approved',
+                                               Approval_by_Executive_Director='Approved').order_by('DateApplied')
+
+        rejected_leave = Leaves.objects.filter(Q(Approval_by_Line_Manager='Rejected')
+                                               | Q(Approval_by_Director='Rejected')
+                                               | Q(Approval_by_Executive_Director='Rejected')).order_by('DateApplied')
+
+    elif director:  # Checks if logged in user is a director
         director = Director.objects.get(name=name)
         pending_leave = Leaves.objects.filter(empDirector=director).filter(Q(Approval_by_Line_Manager='Pending')
                                                                             | Q(Approval_by_Director='Pending')
@@ -81,8 +164,7 @@ def admin_view(request):
                                                                             | Q(Approval_by_Executive_Director='Rejected'
                                                                                 )).order_by('DateApplied')
 
-    if line_manager:  # Checks if logged in user is a manager
-        print("This is a LINE MANAGER!")
+    elif line_manager:  # Checks if logged in user is a manager
         line_manager = LineManager.objects.get(name=name)
         pending_leave = Leaves.objects.filter(empDepartment=line_manager.Departments_under).filter(
             Q(Approval_by_Line_Manager='Pending') | Q(Approval_by_Director='Pending')
@@ -98,107 +180,19 @@ def admin_view(request):
 
 
 
-    status = Leaves.objects.all()
 
-    value = pending_leave.count()
-    valuea = approved_leave.count()
-    valuer = rejected_leave.count()
-    print(value)
-    print(valuea)
-    print(valuer)
-
-    context['status'] = status
-    context['pending_leave'] = pending_leave
     context['approved_leave'] = approved_leave
+    context['pending_leave'] = pending_leave
     context['rejected_leave'] = rejected_leave
 
     return render(request, 'adminDashboard/index.html', context)
 
-
-@login_required(login_url='login')
-@admin_redirect
-def dashboard(request):
-    return render(request, 'adminDashboard/dashboard.html')
-
-
-def notifications(request):
-    return render(request, 'adminDashboard/notifications.html')
-
-
+#Displays all approved Leave Requests
 def approved(request):
-    context = {}
-    approved_leave = Leaves.objects.filter(name="")
-
-    name = request.user.first_name + " " + request.user.last_name  # Name of person currently logged in
-
-    director = Director.objects.filter(name=name)  # Filters for logged in user in list of Directors
-    line_manager = LineManager.objects.filter(name=name)  # Filters for logged in user in list of Line Managers
-    executive_director = ExecutiveDirector.objects.filter(name=name)  # Filters for logged in user in list of Executive Director
-    print("Below admins")
-
-    if executive_director:  # Checks if logged in user is a director
-        print("This is the EXECUTIVE DIRECTOR!")
-        approved_leave = Leaves.objects.filter(Approval_by_Line_Manager='Approved', Approval_by_Director='Approved',
-                                               Approval_by_Executive_Director='Approved').order_by('DateApplied')
-
-    if director:  # Checks if logged in user is a director
-        print("This is a DIRECTOR!")
-        director = Director.objects.get(name=name)
-        approved_leave = Leaves.objects.filter(empDirector=director, Approval_by_Line_Manager='Approved', Approval_by_Director='Approved',
-                                               Approval_by_Executive_Director='Approved').order_by('DateApplied')
-
-    if line_manager:  # Checks if logged in user is a manager
-        print("This is a LINE MANAGER!")
-        line_manager = LineManager.objects.get(name=name)
-        approved_leave = Leaves.objects.filter(empDepartment=line_manager.Departments_under, Approval_by_Line_Manager='Approved',
-                                               Approval_by_Director='Approved',
-                                               Approval_by_Executive_Director='Approved').order_by('DateApplied')
-
-    context['approved_leave'] = approved_leave
-
-    return render(request, 'adminDashboard/leavemanagement/approvedleaves.html', context)
-
-
-def pending(request):
     context = {}
 
     pending_leave = Leaves.objects.filter(name="")
-
-    name = request.user.first_name + " " + request.user.last_name  # Name of person currently logged in
-
-    director = Director.objects.filter(name=name)  # Filters for logged in user in list of Directors
-    line_manager = LineManager.objects.filter(name=name)  # Filters for logged in user in list of Line Managers
-    executive_director = ExecutiveDirector.objects.filter(name=name)  # Filters for logged in user in list of Executive Director
-    print("Below admins")
-
-    if executive_director:  # Checks if logged in user is a director
-        print("This is the EXECUTIVE DIRECTOR!")
-        pending_leave = Leaves.objects.filter(Q(Approval_by_Line_Manager='Pending') | Q(Approval_by_Director='Pending')
-                                              | Q(Approval_by_Executive_Director='Pending')).order_by('DateApplied')
-
-    if director:  # Checks if logged in user is a director
-        print("This is a DIRECTOR!")
-        director = Director.objects.get(name=name)
-        pending_leave = Leaves.objects.filter(empDirector=director).filter(Q(Approval_by_Line_Manager='Pending')
-                                                                            | Q(Approval_by_Director='Pending')
-                                                                            | Q(Approval_by_Executive_Director='Pending'
-                                                                                )).order_by('DateApplied')
-
-    if line_manager:  # Checks if logged in user is a manager
-        print("This is a LINE MANAGER!")
-        line_manager = LineManager.objects.get(name=name)
-        pending_leave = Leaves.objects.filter(empDepartment=line_manager.Departments_under).filter(
-            Q(Approval_by_Line_Manager='Pending') | Q(Approval_by_Director='Pending')
-            | Q(Approval_by_Executive_Director='Pending')).order_by('DateApplied')
-
-    context['pending_leave'] = pending_leave
-
-    return render(request, 'adminDashboard/leavemanagement/pendingleaves.html', context)
-
-
-def rejected(request):
-    context = {}
-
+    approved_leave = Leaves.objects.filter(name="")
     rejected_leave = Leaves.objects.filter(name="")
 
     name = request.user.first_name + " " + request.user.last_name  # Name of person currently logged in
@@ -206,65 +200,225 @@ def rejected(request):
     director = Director.objects.filter(name=name)  # Filters for logged in user in list of Directors
     line_manager = LineManager.objects.filter(name=name)  # Filters for logged in user in list of Line Managers
     executive_director = ExecutiveDirector.objects.filter(name=name)  # Filters for logged in user in list of Executive Director
-    print("Below admins")
+    hr = HR.objects.filter(name=name)  # Filters for logged in user in list of HR
 
-    if executive_director:  # Checks if logged in user is a director
-        print("This is the EXECUTIVE DIRECTOR!")
-        rejected_leave = Leaves.objects.filter(Q(Approval_by_Line_Manager='Rejected') | Q(Approval_by_Director='Rejected')
-                                              | Q(Approval_by_Executive_Director='Rejected')).order_by('DateApplied')
 
-    if director:  # Checks if logged in user is a director
-        print("This is a DIRECTOR!")
+    if hr:  # Checks if logged in user is HR
+        pending_leave = Leaves.objects.filter(Q(Approval_by_Line_Manager='Pending') | Q(Approval_by_Director='Pending')
+                                              | Q(Approval_by_Executive_Director='Pending')).order_by('DateApplied')
+
+        approved_leave = Leaves.objects.filter(Approval_by_Line_Manager='Approved', Approval_by_Director='Approved',
+                                               Approval_by_Executive_Director='Approved').order_by('DateApplied')
+
+        rejected_leave = Leaves.objects.filter(Q(Approval_by_Line_Manager='Rejected')
+                                               | Q(Approval_by_Director='Rejected')
+                                               | Q(Approval_by_Executive_Director='Rejected')).order_by('DateApplied')
+
+    elif executive_director:  # Checks if logged in user is the executive director
+        pending_leave = Leaves.objects.filter(Q(Approval_by_Line_Manager='Pending') | Q(Approval_by_Director='Pending')
+                                              | Q(Approval_by_Executive_Director='Pending')).order_by('DateApplied')
+
+        approved_leave = Leaves.objects.filter(Approval_by_Line_Manager='Approved', Approval_by_Director='Approved',
+                                               Approval_by_Executive_Director='Approved').order_by('DateApplied')
+
+        rejected_leave = Leaves.objects.filter(Q(Approval_by_Line_Manager='Rejected')
+                                               | Q(Approval_by_Director='Rejected')
+                                               | Q(Approval_by_Executive_Director='Rejected')).order_by('DateApplied')
+
+    elif director:  # Checks if logged in user is a director
         director = Director.objects.get(name=name)
-        rejected_leave = Leaves.objects.filter(empDirector=director).filter(Q(Approval_by_Line_Manager='Rejected')
+        pending_leave = Leaves.objects.filter(empDirectorate=director.DirectorateHeaded).filter(Q(Approval_by_Line_Manager='Pending')
+                                                                            | Q(Approval_by_Director='Pending')
+                                                                            | Q(Approval_by_Executive_Director='Pending'
+                                                                                )).order_by('DateApplied')
+
+        approved_leave = Leaves.objects.filter(empDirectorate=director.DirectorateHeaded, Approval_by_Line_Manager='Approved',
+                                               Approval_by_Director='Approved',
+                                               Approval_by_Executive_Director='Approved').order_by('DateApplied')
+
+        rejected_leave = Leaves.objects.filter(empDirectorate=director.DirectorateHeaded).filter(Q(Approval_by_Line_Manager='Rejected')
                                                                             | Q(Approval_by_Director='Rejected')
                                                                             | Q(Approval_by_Executive_Director='Rejected'
                                                                                 )).order_by('DateApplied')
 
-    if line_manager:  # Checks if logged in user is a manager
-        print("This is a LINE MANAGER!")
+    elif line_manager:  # Checks if logged in user is a manager
         line_manager = LineManager.objects.get(name=name)
+        pending_leave = Leaves.objects.filter(empDepartment=line_manager.Departments_under).filter(
+            Q(Approval_by_Line_Manager='Pending') | Q(Approval_by_Director='Pending')
+            | Q(Approval_by_Executive_Director='Pending')).order_by('DateApplied')
+
+        approved_leave = Leaves.objects.filter(empDepartment=line_manager.Departments_under, Approval_by_Line_Manager='Approved',
+                                               Approval_by_Director='Approved',
+                                               Approval_by_Executive_Director='Approved').order_by('DateApplied')
+
         rejected_leave = Leaves.objects.filter(empDepartment=line_manager.Departments_under).filter(
             Q(Approval_by_Line_Manager='Rejected') | Q(Approval_by_Director='Rejected')
             | Q(Approval_by_Executive_Director='Rejected')).order_by('DateApplied')
 
+    context['approved_leave'] = approved_leave
+    context['pending_leave'] = pending_leave
+    context['rejected_leave'] = rejected_leave
+
+    return render(request, 'adminDashboard/leavemanagement/approvedleaves.html', context)
+
+#Displays all pending Leave Requests
+def pending(request):
+    context = {}
+
+    pending_leave = Leaves.objects.filter(name="")
+    approved_leave = Leaves.objects.filter(name="")
+    rejected_leave = Leaves.objects.filter(name="")
+
+    name = request.user.first_name + " " + request.user.last_name  # Name of person currently logged in
+
+    director = Director.objects.filter(name=name)  # Filters for logged in user in list of Directors
+    line_manager = LineManager.objects.filter(name=name)  # Filters for logged in user in list of Line Managers
+    executive_director = ExecutiveDirector.objects.filter(name=name)  # Filters for logged in user in list of Executive Director
+    hr = HR.objects.filter(name=name)  # Filters for logged in user in list of HR
+
+
+    if hr:  # Checks if logged in user is HR
+        pending_leave = Leaves.objects.filter(Q(Approval_by_Line_Manager='Pending') | Q(Approval_by_Director='Pending')
+                                              | Q(Approval_by_Executive_Director='Pending')).order_by('DateApplied')
+
+        approved_leave = Leaves.objects.filter(Approval_by_Line_Manager='Approved', Approval_by_Director='Approved',
+                                               Approval_by_Executive_Director='Approved').order_by('DateApplied')
+
+        rejected_leave = Leaves.objects.filter(Q(Approval_by_Line_Manager='Rejected')
+                                               | Q(Approval_by_Director='Rejected')
+                                               | Q(Approval_by_Executive_Director='Rejected')).order_by('DateApplied')
+
+    elif executive_director:  # Checks if logged in user is the executive director
+        pending_leave = Leaves.objects.filter(Q(Approval_by_Line_Manager='Pending') | Q(Approval_by_Director='Pending')
+                                              | Q(Approval_by_Executive_Director='Pending')).order_by('DateApplied')
+
+        approved_leave = Leaves.objects.filter(Approval_by_Line_Manager='Approved', Approval_by_Director='Approved',
+                                               Approval_by_Executive_Director='Approved').order_by('DateApplied')
+
+        rejected_leave = Leaves.objects.filter(Q(Approval_by_Line_Manager='Rejected')
+                                               | Q(Approval_by_Director='Rejected')
+                                               | Q(Approval_by_Executive_Director='Rejected')).order_by('DateApplied')
+
+
+
+    elif director:  # Checks if logged in user is a director
+        director = Director.objects.get(name=name)
+        pending_leave = Leaves.objects.filter(empDirectorate=director.DirectorateHeaded).filter(Q(Approval_by_Line_Manager='Pending')
+                                                                            | Q(Approval_by_Director='Pending')
+                                                                            | Q(Approval_by_Executive_Director='Pending'
+                                                                                )).order_by('DateApplied')
+        approved_leave = Leaves.objects.filter(empDirectorate=director.DirectorateHeaded, Approval_by_Line_Manager='Approved',
+                                               Approval_by_Director='Approved',
+                                               Approval_by_Executive_Director='Approved').order_by('DateApplied')
+
+        rejected_leave = Leaves.objects.filter(empDirectorate=director.DirectorateHeaded).filter(Q(Approval_by_Line_Manager='Rejected')
+                                                                            | Q(Approval_by_Director='Rejected')
+                                                                            | Q(Approval_by_Executive_Director='Rejected'
+                                                                                )).order_by('DateApplied')
+
+    elif line_manager:  # Checks if logged in user is a manager
+        line_manager = LineManager.objects.get(name=name)
+        pending_leave = Leaves.objects.filter(empDepartment=line_manager.Departments_under).filter(
+            Q(Approval_by_Line_Manager='Pending') | Q(Approval_by_Director='Pending')
+            | Q(Approval_by_Executive_Director='Pending')).order_by('DateApplied')
+
+        approved_leave = Leaves.objects.filter(empDepartment=line_manager.Departments_under,
+                                               Approval_by_Line_Manager='Approved',
+                                               Approval_by_Director='Approved',
+                                               Approval_by_Executive_Director='Approved').order_by('DateApplied')
+
+        rejected_leave = Leaves.objects.filter(empDepartment=line_manager.Departments_under).filter(
+            Q(Approval_by_Line_Manager='Rejected') | Q(Approval_by_Director='Rejected')
+            | Q(Approval_by_Executive_Director='Rejected')).order_by('DateApplied')
+
+
+
+    context['approved_leave'] = approved_leave
+    context['pending_leave'] = pending_leave
+    context['rejected_leave'] = rejected_leave
+
+    return render(request, 'adminDashboard/leavemanagement/pendingleaves.html', context)
+
+#Displays all rejected Leave Requests
+def rejected(request):
+    context = {}
+
+    pending_leave = Leaves.objects.filter(name="")
+    approved_leave = Leaves.objects.filter(name="")
+    rejected_leave = Leaves.objects.filter(name="")
+
+    name = request.user.first_name + " " + request.user.last_name  # Name of person currently logged in
+
+    director = Director.objects.filter(name=name)  # Filters for logged in user in list of Directors
+    line_manager = LineManager.objects.filter(name=name)  # Filters for logged in user in list of Line Managers
+    executive_director = ExecutiveDirector.objects.filter(name=name)  # Filters for logged in user in list of Executive Director
+    hr = HR.objects.filter(name=name)  # Filters for logged in user in list of HR
+
+
+    if hr:  # Checks if logged in user is HR
+        pending_leave = Leaves.objects.filter(Q(Approval_by_Line_Manager='Pending') | Q(Approval_by_Director='Pending')
+                                              | Q(Approval_by_Executive_Director='Pending')).order_by('DateApplied')
+
+        approved_leave = Leaves.objects.filter(Approval_by_Line_Manager='Approved', Approval_by_Director='Approved',
+                                               Approval_by_Executive_Director='Approved').order_by('DateApplied')
+
+        rejected_leave = Leaves.objects.filter(Q(Approval_by_Line_Manager='Rejected')
+                                               | Q(Approval_by_Director='Rejected')
+                                               | Q(Approval_by_Executive_Director='Rejected')).order_by('DateApplied')
+
+    elif executive_director:  # Checks if logged in user is the executive director
+        pending_leave = Leaves.objects.filter(Q(Approval_by_Line_Manager='Pending') | Q(Approval_by_Director='Pending')
+                                              | Q(Approval_by_Executive_Director='Pending')).order_by('DateApplied')
+
+        approved_leave = Leaves.objects.filter(Approval_by_Line_Manager='Approved', Approval_by_Director='Approved',
+                                               Approval_by_Executive_Director='Approved').order_by('DateApplied')
+
+        rejected_leave = Leaves.objects.filter(Q(Approval_by_Line_Manager='Rejected')
+                                               | Q(Approval_by_Director='Rejected')
+                                               | Q(Approval_by_Executive_Director='Rejected')).order_by('DateApplied')
+
+    elif director:  # Checks if logged in user is a director
+        director = Director.objects.get(name=name)
+        pending_leave = Leaves.objects.filter(empDirectorate=director.DirectorateHeaded).filter(Q(Approval_by_Line_Manager='Pending')
+                                                                            | Q(Approval_by_Director='Pending')
+                                                                            | Q(Approval_by_Executive_Director='Pending'
+                                                                                )).order_by('DateApplied')
+
+        approved_leave = Leaves.objects.filter(empDirectorate=director.DirectorateHeaded, Approval_by_Line_Manager='Approved',
+                                               Approval_by_Director='Approved',
+                                               Approval_by_Executive_Director='Approved').order_by('DateApplied')
+
+        rejected_leave = Leaves.objects.filter(empDirectorate=director.DirectorateHeaded).filter(Q(Approval_by_Line_Manager='Rejected')
+                                                                            | Q(Approval_by_Director='Rejected')
+                                                                            | Q(Approval_by_Executive_Director='Rejected'
+                                                                                )).order_by('DateApplied')
+
+    elif line_manager:  # Checks if logged in user is a manager
+        line_manager = LineManager.objects.get(name=name)
+        pending_leave = Leaves.objects.filter(empDepartment=line_manager.Departments_under).filter(
+            Q(Approval_by_Line_Manager='Pending') | Q(Approval_by_Director='Pending')
+            | Q(Approval_by_Executive_Director='Pending')).order_by('DateApplied')
+
+        approved_leave = Leaves.objects.filter(empDepartment=line_manager.Departments_under, Approval_by_Line_Manager='Approved',
+                                               Approval_by_Director='Approved',
+                                               Approval_by_Executive_Director='Approved').order_by('DateApplied')
+
+        rejected_leave = Leaves.objects.filter(empDepartment=line_manager.Departments_under).filter(
+            Q(Approval_by_Line_Manager='Rejected') | Q(Approval_by_Director='Rejected')
+            | Q(Approval_by_Executive_Director='Rejected')).order_by('DateApplied')
+
+    context['approved_leave'] = approved_leave
+    context['pending_leave'] = pending_leave
     context['rejected_leave'] = rejected_leave
 
     return render(request, 'adminDashboard/leavemanagement/rejectedleaves.html', context)
 
-
-def history(request):
-    context = {}
-    print("Inside History!")
-
-    all_leave = Leaves.objects.all()
-    status = Leaves.objects.all()
-
-    print("All Leave")
-    print(all_leave)
-
-    pending_leave = Leaves.objects.filter(Approval_by_Line_Manager='Pending', Approval_by_Director='Pending',
-                                          Approval_by_Executive_Director='Pending').order_by('DateApplied')
-
-    approved_leave = Leaves.objects.filter(Approval_by_Line_Manager='Approved', Approval_by_Director='Approved',
-                                           Approval_by_Executive_Director='Approved').order_by('DateApplied')
-
-    rejected_leave = Leaves.objects.filter(Approval_by_Line_Manager='Rejected', Approval_by_Director='Rejected',
-                                           Approval_by_Executive_Director='Rejected').order_by('DateApplied')
-
-    context['pending_leave'] = pending_leave
-    context['approved_leave'] = approved_leave
-    context['rejected_leave'] = rejected_leave
-    context['all_leave'] = all_leave
-
-    return render(request, 'adminDashboard/alleaves.html', context)
-
+#Displays all Leave Requests
 
 class LeaveListView(ListView):
     template_name = "adminDashboard/leavemanagement/allleaves.html"
 
     def get(self, request, *args, **kwargs):
-        print("Inside LeaveListView Get")
 
         context = {}
         all_leave = Leaves.objects.filter(name="")
@@ -274,34 +428,84 @@ class LeaveListView(ListView):
         director = Director.objects.filter(name=name)  # Filters for logged in user in list of Directors
         line_manager = LineManager.objects.filter(name=name)  # Filters for logged in user in list of Line Managers
         executive_director = ExecutiveDirector.objects.filter(name=name)  # Filters for logged in user in list of Executive Director
-        print("Below admins")
+        hr = HR.objects.filter(name=name)  # Filters for logged in user in list of HR
 
-        if executive_director:  # Checks if logged in user is a director
-            print("This is the EXECUTIVE DIRECTOR!")
+        if hr:  # Checks if logged in user is HR
             all_leave = Leaves.objects.all()
 
-        if director:  # Checks if logged in user is a director
-            print("This is a DIRECTOR!")
-            director = Director.objects.get(name=name)
-            all_leave = Leaves.objects.filter(empDirector=director)
+            pending_leave = Leaves.objects.filter(
+                Q(Approval_by_Line_Manager='Pending') | Q(Approval_by_Director='Pending')
+                | Q(Approval_by_Executive_Director='Pending')).order_by('DateApplied')
 
-        if line_manager:  # Checks if logged in user is a manager
-            print("This is a LINE MANAGER!")
+            approved_leave = Leaves.objects.filter(Approval_by_Line_Manager='Approved', Approval_by_Director='Approved',
+                                                   Approval_by_Executive_Director='Approved').order_by('DateApplied')
+
+            rejected_leave = Leaves.objects.filter(Q(Approval_by_Line_Manager='Rejected')
+                                                   | Q(Approval_by_Director='Rejected')
+                                                   | Q(Approval_by_Executive_Director='Rejected')).order_by('DateApplied')
+
+        elif executive_director:  # Checks if logged in user is a director
+            all_leave = Leaves.objects.all()
+            pending_leave = Leaves.objects.filter(
+                Q(Approval_by_Line_Manager='Pending') | Q(Approval_by_Director='Pending')
+                | Q(Approval_by_Executive_Director='Pending')).order_by('DateApplied')
+
+            approved_leave = Leaves.objects.filter(Approval_by_Line_Manager='Approved', Approval_by_Director='Approved',
+                                                   Approval_by_Executive_Director='Approved').order_by('DateApplied')
+
+            rejected_leave = Leaves.objects.filter(Q(Approval_by_Line_Manager='Rejected')
+                                                   | Q(Approval_by_Director='Rejected')
+                                                   | Q(Approval_by_Executive_Director='Rejected'
+                                                       )).order_by('DateApplied')
+
+        elif director:  # Checks if logged in user is a director
+            director = Director.objects.get(name=name)
+            all_leave = Leaves.objects.filter(empDirectorate=director.DirectorateHeaded)
+
+            pending_leave = Leaves.objects.filter(empDirectorate=director.DirectorateHeaded).filter(Q(Approval_by_Line_Manager='Pending')
+                                                                               | Q(Approval_by_Director='Pending')
+                                                                               | Q(Approval_by_Executive_Director='Pending'
+                                                                                  )).order_by('DateApplied')
+
+            approved_leave = Leaves.objects.filter(empDirectorate=director.DirectorateHeaded, Approval_by_Line_Manager='Approved',
+                                                   Approval_by_Director='Approved',
+                                                   Approval_by_Executive_Director='Approved').order_by('DateApplied')
+
+            rejected_leave = Leaves.objects.filter(empDirectorate=director.DirectorateHeaded).filter(Q(Approval_by_Line_Manager='Rejected')
+                                                                                | Q(Approval_by_Director='Rejected')
+                                                                                | Q(Approval_by_Executive_Director='Rejected'
+                                                                                    )).order_by('DateApplied')
+
+        elif line_manager:  # Checks if logged in user is a manager
             line_manager = LineManager.objects.get(name=name)
             all_leave = Leaves.objects.filter(empDepartment=line_manager.Departments_under)
 
+            pending_leave = Leaves.objects.filter(empDepartment=line_manager.Departments_under).filter(
+                Q(Approval_by_Line_Manager='Pending') | Q(Approval_by_Director='Pending')
+                | Q(Approval_by_Executive_Director='Pending')).order_by('DateApplied')
+
+            approved_leave = Leaves.objects.filter(empDepartment=line_manager.Departments_under,
+                                                   Approval_by_Line_Manager='Approved',
+                                                   Approval_by_Director='Approved',
+                                                   Approval_by_Executive_Director='Approved').order_by('DateApplied')
+
+            rejected_leave = Leaves.objects.filter(empDepartment=line_manager.Departments_under).filter(
+                Q(Approval_by_Line_Manager='Rejected') | Q(Approval_by_Director='Rejected')
+                | Q(Approval_by_Executive_Director='Rejected')).order_by('DateApplied')
+
         context['all_leave'] = all_leave
+        context['approved_leave'] = approved_leave
+        context['pending_leave'] = pending_leave
+        context['rejected_leave'] = rejected_leave
 
         return render(request, self.template_name, context)
 
-
+#Provides extra details of Leave Request
 class LeaveDetailView(DetailView):
-    print("Inside Leave")
 
     template_name = "adminDashboard/leavedetails.html"
 
     def get(self, request, *args, **kwargs):
-        print("Inside Leave Get")
 
         context = {}
         all_leave = Leaves.objects.filter(name="")
@@ -310,75 +514,70 @@ class LeaveDetailView(DetailView):
 
         director = Director.objects.filter(name=name)  # Filters for logged in user in list of Directors
         line_manager = LineManager.objects.filter(name=name)  # Filters for logged in user in list of Line Managers
-        executive_director = ExecutiveDirector.objects.filter(
-            name=name)  # Filters for logged in user in list of Executive Director
-        print("Below admins")
+        executive_director = ExecutiveDirector.objects.filter(name=name)  # Filters for logged in user in list of Executive Director
+        hr = HR.objects.filter(name=name)  # Filters for logged in user in list of HR
 
-        if executive_director:  # Checks if logged in user is a director
-            print("This is the EXECUTIVE DIRECTOR!")
+        if hr:  # Checks if logged in user is HR
+            all_leave = Leaves.objects.all() #HR needs to be able to see all Leaves but then not have power to aprrove.
+                                             #Only HR line manager can approve for their own department but not others.
+
+        elif executive_director:  # Checks if logged in user is executive director
             all_leave = Leaves.objects.all()
 
-        if director:  # Checks if logged in user is a director
-            print("This is a DIRECTOR!")
+        elif director:  # Checks if logged in user is a director
             director = Director.objects.get(name=name)
-            all_leave = Leaves.objects.filter(empDirector=director)
+            all_leave = Leaves.objects.filter(empDirectorate=director.DirectorateHeaded)
 
-        if line_manager:  # Checks if logged in user is a manager
-            print("This is a LINE MANAGER!")
+        elif line_manager:  # Checks if logged in user is a manager
             line_manager = LineManager.objects.get(name=name)
             all_leave = Leaves.objects.filter(empDepartment=line_manager.Departments_under)
 
         context['all_leave'] = all_leave
-
-        print("At the bottom!")
         return render(request, self.template_name, context)
 
-
+#Handles the approval and rejection of Leave Requests
 class LeaveUpdateView(UpdateView):
-    print("Inside Update")
-
-    # template_name = "adminDashboard/leavedetails.html"
     template_name = "adminDashboard/status_update.html"
 
     def get(self, request, *args, **kwargs):
-        print("Inside Update Get")
         context = {}
 
         approval_form = ApprovalForm()
 
         context['approval_form'] = approval_form
 
-        print("At the bottom!")
         return render(request, self.template_name, context)
 
     @staticmethod
     def approved(selected_employee, sender):
 
+        hr = HR.objects.all().first()
+        name_hr = hr.name
+        split_line_name_hr = name_hr.split(' ')
+        email_name_hr = Account.objects.get(last_name=split_line_name_hr[1], first_name=split_line_name_hr[0])
+
+
         name = selected_employee.name
         split_line_name = name.split(' ')
-        email_name = User.objects.get(last_name=split_line_name[1], first_name=split_line_name[0])
-        print("Email =")
-        print(email_name.email)
+        email_name = Account.objects.get(last_name=split_line_name[1], first_name=split_line_name[0])
 
         send_mail(
             subject="Leave Request",
             message="Hello " + name + " ,\n I have approved this leave request. "
                                       "\n Please go to the NITA Leave Management Portal to action the next phase of this request.",
             from_email=sender,
-            recipient_list=[email_name.email]
+            recipient_list=[email_name.email, email_name_hr.email]
         )
 
     @staticmethod
-    def rejected(selected_employee, sender):
+    def rejected(selected_employee, sender, reason):
         employee = selected_employee.name
         split_employee = employee.split(' ')
-        email_employee = User.objects.get(last_name=split_employee[1], first_name=split_employee[0])
-        print("Email =")
-        print(email_employee.email)
+        email_employee = Account.objects.get(last_name=split_employee[1], first_name=split_employee[0])
 
         send_mail(
             subject="Leave Request",
-            message="Hello " + employee + " ,\n Sorry, your request to take leave has been rejected. ",
+            message="Hello " + employee + " ,\n Sorry, your request to take leave has been rejected. The reason is below: \n  " +reason,
             from_email=sender,
             recipient_list=[email_employee.email]
         )
@@ -386,26 +585,17 @@ class LeaveUpdateView(UpdateView):
     def post(self, request, *args, **kwargs):
 
         leave_id = self.kwargs.get('pk')
-        print("Leave ID = ")
-        print(leave_id)
 
         selected_employee = get_object_or_404(Leaves, pk=leave_id)
-        print("Employee name = ")
-        print(selected_employee.name)
 
-        # *****************************
+
         name = request.user.first_name + " " + request.user.last_name  # Name of person currently logged in
-        print("Staff Name is")
-        print(name)
 
         director = Director.objects.filter(name=name)  # Filters for logged in user in list of Directors
         line_manager = LineManager.objects.filter(name=name)  # Filters for logged in user in list of Line Managers
-        executive_director = ExecutiveDirector.objects.filter(
-            name=name)  # Filters for logged in user in list of Executive Director
+        executive_director = ExecutiveDirector.objects.filter(name=name)  # Filters for logged in user in list of Executive Director
+        hr = HR.objects.filter(name=name)  # Filters for logged in user in list of HR
 
-        # *****************************
-
-        print("Inside Post")
         context = {}
         approval_form = ApprovalForm(request.POST)
         all_leave = Leaves.objects.all()
@@ -415,53 +605,42 @@ class LeaveUpdateView(UpdateView):
         if approval_form.is_valid():
             post = approval_form.save(commit=False)
             post.save()
-            print("Leave Status = ")
-            print(post.leave_status)
-            print("All Leave = ")
-            print(all_leave)
 
-            # Edit Leave Object
-            if executive_director:  # Checks if logged in user is a director
-                print("This is the EXECUTIVE DIRECTOR!")
-                # Change Director field in leave model to approved
+            if executive_director:  # Checks if logged in user is the excutive director
+                # Change Executive Director field in leave model to approved
                 selected_employee.Approval_by_Executive_Director = post.leave_status
                 selected_employee.save()
 
                 if post.leave_status == "Approved":
                     self.approved(selected_employee, request.user.email)
                 elif post.leave_status == "Rejected":
-                    self.rejected(selected_employee, request.user.email)
+                    self.rejected(selected_employee, request.user.email, post.notes)
 
             if director:  # Checks if logged in user is a director
-                print("This is a DIRECTOR!")
                 # Change Director field in leave model to approved
                 selected_employee.Approval_by_Director = post.leave_status
                 selected_employee.save()
+
                 # Need to send email to Executive Director to action Leave.
                 if post.leave_status == "Approved":
-                    ed = get_object_or_404(ExecutiveDirector)
+                    obj = Account.objects.get(role="Executive Director") #There should be only one account with the role Executive Director
+                    ed_name = obj.first_name + " " + obj.last_name
+                    ed = ExecutiveDirector.objects.get(name=ed_name)
                     self.approved(ed, request.user.email)
                 elif post.leave_status == "Rejected":
-                    self.rejected(selected_employee, request.user.email)
+                    self.rejected(selected_employee, request.user.email, post.notes)
 
             if line_manager:  # Checks if logged in user is a manager
-                print("This is a LINE MANAGER!")
+
                 # Change Line Manager field in leave model to approved
                 selected_employee.Approval_by_Line_Manager = post.leave_status
                 selected_employee.save()
-                # Need to send email to Head of Directorate to action Leave.
-                # Finding the Director of the directorate
+                # Send email to Head of Directorate to action Leave.
+
                 if post.leave_status == "Approved":
                     self.approved(selected_employee.empDirector, request.user.email)
                 elif post.leave_status == "Rejected":
-                    self.rejected(selected_employee, request.user.email)
-
-            print("NEW LEAVE STATUS EXECUTIVE DIRECTOR")
-            print(selected_employee.Approval_by_Executive_Director)
-            print("NEW LEAVE STATUS DIRECTOR")
-            print(selected_employee.Approval_by_Director)
-            print("NEW LEAVE STATUS LINE MANAGER")
-            print(selected_employee.Approval_by_Line_Manager)
+                    self.rejected(selected_employee, request.user.email, post.notes)
 
             return redirect(reverse("adminDashboard:LeaveDetailView"))
 
@@ -470,3 +649,119 @@ class LeaveUpdateView(UpdateView):
         else:
             context['approval_form'] = approval_form
             return render(request, self.template_name, context)
+
+#Display all users to delegate privileges
+class delegate(ListView):
+    template_name = "adminDashboard/leavemanagement/delegate.html"
+
+    def get(self, request, *args, **kwargs):
+
+        context = {}
+
+        all_staff = Account.objects.all()
+
+        context['all_staff'] = all_staff
+
+        return render(request, self.template_name, context)
+
+#Assigns privileges to User
+def handle(request, slug):
+
+    update_account = get_object_or_404(Account, slug=slug)
+    name = update_account.first_name + " " + update_account.last_name
+
+    if request.user.is_line_manager:
+        if update_account.is_line_manager == True:
+            messages.warning(request, f'This user is already a line manager')
+            return redirect('adminDashboard:delegate')
+
+        else:
+            update_account.is_line_manager = True
+            update_account.is_staff = True
+            department = Departments.objects.get(name=request.user.department)
+            obj = LineManager(name=name, Departments_under=department)  # Adds User to list of line managers
+            obj.save()
+
+    elif request.user.is_director:
+        if update_account.is_director == True:
+            messages.warning(request, f'This user is already a Director')
+            return redirect('adminDashboard:delegate')
+
+        else:
+            update_account.is_director = True
+            update_account.is_staff = True
+            directorate = Directories.objects.get(name=request.user.directorate)
+            obj = Director(name=name, DirectorateHeaded=directorate)
+            obj.save()
+
+    elif request.user.is_executive_director:
+        if update_account.is_executive_director == True:
+            messages.warning(request, f'This user is already an Executive Director')
+            return redirect('adminDashboard:delegate')
+
+        else:
+            update_account.is_executive_director = True
+            update_account.is_staff = True
+            obj = ExecutiveDirector(name=name)
+            obj.save()
+
+    update_account.save()
+
+    return redirect('adminDashboard:pending')
+
+#Removes privileges from User
+def remove(request, slug):
+
+    update_account = get_object_or_404(Account, slug=slug)
+    name = update_account.first_name + " " + update_account.last_name
+
+    if request.user.is_line_manager:
+        if update_account.role == "Line Manager":
+            messages.warning(request, f'You cannot change the the privileges of the selected user')
+            return redirect('adminDashboard:delegate')
+
+        if update_account.role == "Director" or update_account.role == "Executive Director":
+            update_account.is_line_manager = False
+            update_account.is_staff = True
+            LineManager.objects.filter(name=name).delete()
+
+        else:
+            update_account.is_line_manager = False
+            update_account.is_staff = False
+            LineManager.objects.filter(name=name).delete()
+
+    elif request.user.is_director:
+        if update_account.role == "Director":
+            messages.warning(request, f'You cannot change the the privileges of the selected user')
+            return redirect('adminDashboard:delegate')
+
+        if update_account.role == "Line Manager" or update_account.role == "Executive Director":
+            update_account.is_director = False
+            update_account.is_staff = True
+            Director.objects.filter(name=name).delete()
+
+        else:
+            update_account.is_director = False
+            update_account.is_staff = False
+            Director.objects.filter(name=name).delete()
+
+    elif request.user.is_executive_director:
+        if update_account.role == "Executive Director":
+            messages.warning(request, f'You cannot change the the privileges of the selected user')
+            return redirect('adminDashboard:delegate')
+
+        if update_account.role == "Line Manager" or update_account.role == "Director":
+            update_account.is_executive_director = False
+            update_account.is_staff = True
+            ExecutiveDirector.objects.filter(name=name).delete()
+
+        else:
+            update_account.is_executive_director = False
+            update_account.is_staff = False
+            ExecutiveDirector.objects.filter(name=name).delete()
+
+    update_account.save()
+
+    return redirect('adminDashboard:pending')
+
+

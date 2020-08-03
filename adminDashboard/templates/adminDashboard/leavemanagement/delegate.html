@@ -1,0 +1,297 @@
+{% extends 'adminDashboard/base.html' %}
+{% load static %}
+{% block content %}
+
+<!-- Content Wrapper. Contains page content -->
+
+
+<style>
+
+    .searchBox
+    {
+      background-image: url(/static/essential/search.png); /* Add a search icon to input */
+      background-position: 0px 12px; /* Position the search icon */
+      background-repeat: no-repeat; /* Do not repeat the icon image */
+      background-size: 30px 30px;
+      width: 100%;
+      font-size: 16px; /* Increase font-size */
+      padding-left: 40px !important;
+      border: 10px solid #ddd; /* Add a grey border */
+      margin-bottom: 12px; /* Add some space below the input */
+
+    }
+
+</style>
+
+
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0 text-dark">Delegate Privileges</h1>
+                </div><!-- /.col -->
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'adminDashboard:pending' %}">Home</a></li>
+                        <li class="breadcrumb-item active">All</li>
+                    </ol>
+                </div><!-- /.col -->
+            </div><!-- /.row -->
+        </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+    {% if messages %}
+
+
+      <ul class="messages" style="color:orange; font-size:20px; font-weight:bold;">
+          {% for message in messages %}
+          <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+           {% endfor %}
+      </ul>
+    {% endif %}
+
+    <!-- Main content -->
+    <section class="content">
+        <!-- Default box -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title" style="padding-right: 20px;">All Staff</h3>
+
+
+
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip"
+                            title="Collapse">
+                        <i class="fas fa-minus"></i></button>
+                    <button type="button" class="btn btn-tool" data-card-widget="remove" data-toggle="tooltip"
+                            title="Remove">
+                        <i class="fas fa-times"></i></button>
+                </div>
+
+<!--                ***************************** SEARCH FEATURE *****************************-->
+
+                <input type="text" id="searchName" onkeyup="findName()" class="searchBox" placeholder="Search by Name...">
+
+                <input type="text" id="searchDirectorate" onkeyup="findDirectorate()" class="searchBox" placeholder="Search by Directorate...">
+
+
+<!--                 ***************************** SEARCH FEATURE *****************************-->
+
+
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-striped projects" id="myTable">
+                    <thead>
+
+                    <tr>
+                        <th style="width: 5%">
+                            User ID
+                        </th>
+                        <th style="width: 20%">
+                            Names
+                        </th>
+                        <th style="width: 10%">
+                            Department
+                        </th>
+                        <th style="width: 10%">
+                            Directorate
+                        </th>
+                        <th>
+                            Role
+                        </th>
+
+                        {% if request.user.is_line_manager %}
+
+                        <th style="width: 8%" class="text-center">
+                            Line Manager
+                        </th>
+
+                        {% endif %}
+
+                        {% if request.user.is_director %}
+
+                        <th style="width: 8%" class="text-center">
+                            Director
+                        </th>
+
+                        {% endif %}
+
+                        {% if request.user.is_executive_director %}
+
+                        <th style="width: 8%" class="text-center">
+                            Executive Director
+                        </th>
+
+                        {% endif %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for account in all_staff %}
+                    <tr>
+                        <td>
+                            {{account.pk}}
+                        </td>
+                        <td>
+                            <a>
+                                {{account.first_name}} {{account.last_name}}
+                            </a>
+
+                        </td>
+                        <td>
+                            <ul class="list-inline">
+
+                                <li class="list-inline-item">
+                                    {{account.department}}
+                                </li>
+                            </ul>
+                        </td>
+                        <td>
+                            <ul class="list-inline">
+
+                                <li class="list-inline-item">
+                                    {{account.directorate}}
+                                </li>
+                            </ul>
+                        </td>
+                        <td class="project_progress">
+                            {{account.role}}
+                        </td>
+                        {% if request.user.is_line_manager %}
+
+                        <td class="project-state text-left">
+
+                            {{account.is_line_manager}}
+                            <small>
+                                <br/>
+                                <a href="{% url 'adminDashboard:handle' account.slug %}" style="color:green;">
+                                    Apply Privileges
+                                </a>
+                            </small>
+                            <small>
+                                <a href="{% url 'adminDashboard:remove' account.slug %}" style="color:red;">
+                                    Remove Privileges
+                                </a>
+                            </small>
+
+                        </td>
+                        {% endif %}
+
+                        {% if request.user.is_director %}
+                        <td class="project-state text-left">
+
+                            {{account.is_director}}
+                            <small>
+                                <br/>
+                                <a href="{% url 'adminDashboard:handle' account.slug %}" style="color:green;">
+                                    Apply Privileges
+                                </a>
+                            </small>
+                            <small>
+                                <a href="{% url 'adminDashboard:remove' account.slug %}" style="color:red;">
+                                    Remove Privileges
+                                </a>
+                            </small>
+
+                        </td>
+
+                        {% endif %}
+
+                        {% if request.user.is_executive_director %}
+
+                        <td class="project-state text-left">
+
+                           {{account.is_executive_director}}
+                            <small>
+                                <br/>
+                                <a href="{% url 'adminDashboard:handle' account.slug %}" style="color:green;">
+                                    Apply Privileges
+                                </a>
+                            </small>
+                            <small>
+                                <a href="{% url 'adminDashboard:remove' account.slug %}" style="color:red;">
+                                    Remove Privileges
+                                </a>
+                            </small>
+
+                        </td>
+
+                        {% endif %}
+                        <td class="project-actions text-left">
+
+
+
+
+                            {% endfor %}
+
+
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- /.card-body -->
+        </div>
+        <!-- /.card -->
+
+    </section>
+    <!-- /.content -->
+</div>
+<!-- /.content-wrapper -->
+
+
+<script>
+
+function findName() {
+  // Declare variables
+  var input, filter, table, tr, td, i, txtValue;
+  input = document.getElementById("searchName");
+  filter = input.value.toUpperCase(); //Makes the input text uppercase
+  table = document.getElementById("myTable"); // Gets the entire table
+  tr = table.getElementsByTagName("tr"); //Gets all rows
+
+  // Loop through all table rows, and hide those who don't match the search query
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[1]; // Data to be shown
+    if (td) {
+      txtValue = td.textContent || td.innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }
+  }
+}
+
+
+
+function findDirectorate() {
+  // Declare variables
+  var input, filter, table, tr, td, i, txtValue;
+  input = document.getElementById("searchDirectorate");
+  filter = input.value.toUpperCase(); //Makes the input text uppercase
+  table = document.getElementById("myTable"); // Gets the entire table
+  tr = table.getElementsByTagName("tr"); //Gets all rows
+
+  // Loop through all table rows, and hide those who don't match the search query
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[3]; // Data to be shown
+    if (td) {
+      txtValue = td.textContent || td.innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }
+  }
+}
+
+</script>
+
+
+{% endblock content %}
+
+
+

@@ -24,7 +24,7 @@
         <!-- Default box -->
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">all leaves</h3>
+                <h3 class="card-title">All Leave Requests</h3>
 
                 <div class="card-tools">
                     <button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip"
@@ -45,7 +45,7 @@
                         <th style="width: 5%">
                             Ref ID
                         </th>
-                        <th style="width: 20%">
+                        <th style="width: 10%">
                             Names
                         </th>
                         <th style="width: 10%">
@@ -54,17 +54,20 @@
                         <th style="width: 10%">
                             Department
                         </th>
-                        <th>
+                        <th style="width: 10%">
                             Leave Type
                         </th>
-                        <th>
+                        <th style="width: 10%">
                             Download
                         </th>
-                        <th style="width: 8%" class="text-center">
+                        <th style="width: 10%" class="text-center">
                             Status
                         </th>
-                        <th style="width: 20%">
-
+                        <th style="width: 10%">
+                            Start Date
+                        </th>
+                        <th style="width: 10%">
+                            End Date
                         </th>
                     </tr>
                     </thead>
@@ -103,7 +106,7 @@
                             {{l.LeaveType}}
                         </td>
                         <td>
-                            {% if l.file_upload == "No file" %}
+                            {% if not l.file_upload %}
                             No File
                             {% else %}
                             <a href="{{ l.file_upload.url }}" class="btn btn-primary btn-sm">
@@ -111,21 +114,31 @@
                             </a>
                             {% endif %}
                         </td>
-                        <td class="project-state">
+                        <td class="project-state" >
 
-                            {% if l.Approval_by_Line_Manager == 'Approved' %}
+                            {% if l.Approval_by_Line_Manager == 'Approved' and l.Approval_by_Director == 'Approved' and l.Approval_by_Executive_Director == 'Approved' %}
                             <span class="badge badge-success">Approved</span>
-                            {% else %}
-                            <li class="list-item"> {{l.Approval_by_Line_Manager}}</li>
-                            {% endif %}
-                        </td>
-                        <td class="project-actions text-right">
-                            <a class="btn btn-primary btn-sm" href="{{leaves.get_absolute_url}}">
-                                <i class="fas fa-folder">
-                                </i>
-                                View Details
-                            </a>
 
+
+                            {% elif l.Approval_by_Line_Manager == 'Rejected' or l.Approval_by_Director == 'Rejected' or l.Approval_by_Executive_Director == 'Rejected' %}
+                            <span class="badge badge-danger">Rejected</span>
+
+                            {% else %}
+                            <li class="list-item"> Pending </li>
+
+                            {% endif %}
+
+                        </td>
+                        <td class="project-actions text-left">
+
+                            {{l.StartDate}}
+
+
+
+                        </td>
+                        <td class="project-actions text-left">
+
+                            {{l.EndDate}}
 
                             {% endfor %}
                         </td>

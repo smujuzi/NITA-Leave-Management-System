@@ -1,173 +1,312 @@
-
 {% extends 'adminDashboard/base.html' %}
+{% load static %}
 {% block content %}
 
- <!-- Content Wrapper. Contains page content -->
-  <div class="content-wrapper">
+<!-- Content Wrapper. Contains page content -->
+
+
+<style>
+
+    .searchBox
+    {
+      background-image: url(/static/essential/search.png); /* Add a search icon to input */
+      background-position: 0px 12px; /* Position the search icon */
+      background-repeat: no-repeat; /* Do not repeat the icon image */
+      background-size: 30px 30px;
+      width: 100%;
+      font-size: 16px; /* Increase font-size */
+      padding-left: 40px !important;
+      border: 10px solid #ddd; /* Add a grey border */
+      margin-bottom: 12px; /* Add some space below the input */
+
+    }
+
+</style>
+
+
+<div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <div class="content-header">
-      <div class="container-fluid">
-        <div class="row mb-2">
-          <div class="col-sm-6">
-            <h1 class="m-0 text-dark">Approved Leaves</h1>
-          </div><!-- /.col -->
-          <div class="col-sm-6">
-            <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><a href="#">Home</a></li>
-              <li class="breadcrumb-item active">Dashboard v1</li>
-            </ol>
-          </div><!-- /.col -->
-        </div><!-- /.row -->
-      </div><!-- /.container-fluid -->
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0 text-dark">Dashboard</h1>
+                </div><!-- /.col -->
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'adminDashboard:pending' %}">Home</a></li>
+                        <li class="breadcrumb-item active">Dashboard v1</li>
+                    </ol>
+                </div><!-- /.col -->
+            </div><!-- /.row -->
+        </div><!-- /.container-fluid -->
     </div>
     <!-- /.content-header -->
 
- <!-- Main content -->
+        <section class="content">
+
+    <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-3 col-6">
+                    <!-- small box -->
+                    <div class="small-box bg-success">
+                        <div class="inner">
+                            <h3>{{ approved_leave.count }}</h3>
+
+                            <p>Approved Leaves</p>
+                        </div>
+                        <div class="icon">
+                            <i class="ion ion-bag"></i>
+                        </div>
+                        <a href="{% url 'adminDashboard:approved'%}" class="small-box-footer">View </a>
+
+                    </div>
+                </div>
+                <!-- ./col -->
+                <div class="col-lg-3 col-6">
+                    <!-- small box -->
+                    <div class="small-box bg-info">
+                        <div class="inner">
+                            <h3>{{ pending_leave.count }}<sup style="font-size: 20px"></sup></h3>
+
+                            <p>Pending Leaves</p>
+                        </div>
+                        <div class="icon">
+                            <i class="ion ion-stats-bars"></i>
+                        </div>
+                        <a href="{% url 'adminDashboard:pending' %}" class="small-box-footer">View </a>
+                    </div>
+                </div>
+                <!-- ./col -->
+
+                <!-- ./col -->
+                <div class="col-lg-3 col-6">
+                    <!-- small box -->
+                    <div class="small-box bg-danger">
+                        <div class="inner">
+                            <h3>{{ rejected_leave.count }}</h3>
+
+                            <p>Rejected</p>
+                        </div>
+                        <div class="icon">
+                            <i class="ion ion-pie-graph"></i>
+                        </div>
+                        <a href="{% url 'adminDashboard:rejected' %}" class="small-box-footer">View </a>
+                    </div>
+                </div>
+            </div>
+
+    </section>
+
+    <!-- Main content -->
     <section class="content">
-      <!-- Default box -->
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title">Approved leaves</h3>
+        <!-- Default box -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Approved Leave Requests</h3>
 
-          <div class="card-tools">
-            <button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
-              <i class="fas fa-minus"></i></button>
-            <button type="button" class="btn btn-tool" data-card-widget="remove" data-toggle="tooltip" title="Remove">
-              <i class="fas fa-times"></i></button>
-          </div>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip"
+                            title="Collapse">
+                        <i class="fas fa-minus"></i></button>
+                    <button type="button" class="btn btn-tool" data-card-widget="remove" data-toggle="tooltip"
+                            title="Remove">
+                        <i class="fas fa-times"></i></button>
+                </div>
+
+<!--                ***************************** SEARCH FEATURE *****************************-->
+
+                <input type="text" id="searchName" onkeyup="findName()" class="searchBox" placeholder="Search by Name...">
+
+                <input type="text" id="searchDirectorate" onkeyup="findDirectorate()" class="searchBox" placeholder="Search by Directorate...">
+
+
+<!--                 ***************************** SEARCH FEATURE *****************************-->
+
+
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-striped projects" id="myTable">
+                    <thead>
+                    <tr>
+                        <th style="width: 5%">
+                            Leave Request ID
+                        </th>
+                        <th style="width: 20%">
+                            Names
+                        </th>
+                        <th style="width: 15%">
+                            Directorate
+                        </th>
+                        <th>
+                            Remaining Leave Days
+                        </th>
+                        <th>
+                            Leave Type
+                        </th>
+
+                        <th style="width: 8%">
+                            Status
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for leaves in approved_leave %}
+                    <tr>
+                        <td>
+                            {{leaves.pk}}
+                        </td>
+                        <td>
+                            <a>
+                                {{leaves.name}}
+                            </a>
+                            <br/>
+                            <small>
+                                Applied on {{leaves.DateApplied}}
+                            </small>
+                        </td>
+                        <td>
+                            <ul class="list-inline">
+
+                                <li class="list-inline-item">
+                                    {{leaves.empDirectorate}}
+                                </li>
+                            </ul>
+                        </td>
+
+                        <td class="project_progress">
+                            {{leaves.OutstandingLeaveDays}}
+                        </td>
+
+                        <td class="project_progress">
+                            {{leaves.LeaveType}}
+                        </td>
+                        <td class="project-state">
+
+                            {% if leaves.Approval_by_Line_Manager == 'Approved' %}
+                            <span class="badge badge-success">Approved</span>
+                            {% else %}
+                            <li class="list-item"> {{leaves.Approval_by_Line_Manager}}</li>
+                            {% endif %}
+
+                        </td>
+                        <td class="project-actions text-right">
+                            <a class="btn btn-primary btn-sm" href="{{leaves.get_absolute_url}}">
+                                <i class="fas fa-folder">
+                                </i>
+                                View Details
+                            </a>
+
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- /.card-body -->
         </div>
-        <div class="card-body p-0">
-          <table class="table table-striped projects">
-              <thead>
-                  <tr>
-                      <th style="width: 5%">
-                          Ref ID
-                      </th>
-                      <th style="width: 20%">
-                          Names
-                      </th>
-                      <th style="width: 15%">
-                          Date Posted
-                      </th>
-                      <th>
-                          Leave Status
-                      </th>
-                      <th style="width: 8%" class="text-center">
-                          Status
-                      </th>
-                      <th style="width: 20%">
-                          Actions
-                      </th>
-                  </tr>
-              </thead>
-              <tbody>
-                {% for leaves in approved_leave %}
-                  <tr>
-                      <td>
-                          {{leaves.pk}}
-                      </td>
-                      <td>
-                          <a>
-                              {{leaves.name}}
-                          </a>
-                          <br/>
-                          <small>
-                              Applied on  {{leaves.DateApplied}}
-                          </small>
-                      </td>
-                      <td>
-                          <ul class="list-inline">
-
-                              <li class="list-inline-item">
-                                  {{leaves.empDirectorate}}
-                              </li>
-                          </ul>
-                      </td>
-                      <td>
-                          <ul class="list-inline">
-
-                              <li class="list-inline-item">
-                                  {{leaves.empDepartment}}
-                              </li>
-                          </ul>
-                      </td>
-                      <td class="project_progress">
-                          {{leaves.LeaveType}}
-                      </td>
-                      <td class="project-state">
-
-                          {% if  leaves.Approval_by_Line_Manager == 'Approved' %}
-                              <span class="badge badge-success">Approved</span>
-                          {% else %}
-                              <li class="list-item"> {{leaves.Approval_by_Line_Manager}} </li>
-                          {% endif %}
-
-                      </td>
-                      <td class="project-actions text-right">
-                          <a class="btn btn-primary btn-sm" href="{{leaves.get_absolute_url}}">
-                              <i class="fas fa-folder">
-                              </i>
-                              View Details
-                          </a>
-
-                      {% endfor %}
-                      </td>
-                  </tr>
-              </tbody>
-          </table>
-        </div>
-        <!-- /.card-body -->
-      </div>
-      <!-- /.card -->
+        <!-- /.card -->
 
     </section>
     <!-- /.content -->
-  </div>
-  <!-- /.content-wrapper -->
+</div>
+<!-- /.content-wrapper -->
 
 
-  <!--model starts here-->
-      <form method="POST" action="">
-      {% csrf_token %}
-          <div class="modal fade" id="modalLoginForm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-                aria-hidden="true">
-          <div class="modal-dialog" role="document">
+<!--model starts here-->
+<form method="POST" action="">
+    {% csrf_token %}
+    <div class="modal fade" id="modalLoginForm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
             <div class="modal-content">
-              <div class="modal-header text-center">
-                <h4 class="modal-title w-100 font-weight-bold">Approve</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
+                <div class="modal-header text-center">
+                    <h4 class="modal-title w-100 font-weight-bold">Approve</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
 
-              <div class="modal-body mx-3">
+                <div class="modal-body mx-3">
                     <div class="form-group">
-                      <label>Actions</label>
+                        <label>Actions</label>
                         <select class="form-control">
-                          
+
                             <option>{{object.Approval_by_Line_Manager}}</option>
-                            
-                         
+
+
                         </select>
                     </div>
 
                     <div class="form-group">
-                      <label>Description</label>
-                      <textarea class="form-control" rows="3" placeholder="Enter ..."></textarea>
+                        <label>Description</label>
+                        <textarea class="form-control" rows="3" placeholder="Enter ..."></textarea>
                     </div>
-              </div>
+                </div>
 
-              <div class="modal-footer d-flex justify-content-center">
-                <button class="btn btn-primary">submit</button>
-              </div>
+                <div class="modal-footer d-flex justify-content-center">
+                    <button class="btn btn-primary">submit</button>
+                </div>
 
             </div>
-          </div>
         </div>
     </div>
-  </form>
-  <!--model ends here-->
- 
+    </div>
+</form>
+<!--model ends here-->
+
+
+<script>
+
+function findName() {
+  // Declare variables
+  var input, filter, table, tr, td, i, txtValue;
+  input = document.getElementById("searchName");
+  filter = input.value.toUpperCase(); //Makes the input text uppercase
+  table = document.getElementById("myTable"); // Gets the entire table
+  tr = table.getElementsByTagName("tr"); //Gets all rows
+
+  // Loop through all table rows, and hide those who don't match the search query
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[1]; // Data to be shown
+    if (td) {
+      txtValue = td.textContent || td.innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }
+  }
+}
+
+
+
+function findDirectorate() {
+  // Declare variables
+  var input, filter, table, tr, td, i, txtValue;
+  input = document.getElementById("searchDirectorate");
+  filter = input.value.toUpperCase(); //Makes the input text uppercase
+  table = document.getElementById("myTable"); // Gets the entire table
+  tr = table.getElementsByTagName("tr"); //Gets all rows
+
+  // Loop through all table rows, and hide those who don't match the search query
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[2]; // Data to be shown
+    if (td) {
+      txtValue = td.textContent || td.innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }
+  }
+}
+
+</script>
+
+
 
 {% endblock content %}
 

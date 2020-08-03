@@ -2,82 +2,115 @@
 {% block content %}
 {% load static %}
 {% load crispy_forms_tags %}
+{% load material_form %}
 
 
 <body class="hold-transition register-page">
 <div class="register-box">
-  <div class="register-logo">
-    <img src= "{% static 'essential/logo.png' %}" alt="AdminLTE Logo"  style="width:100px;height:50px;">
-    
-  </div>
+    <div class="register-logo">
+        <img src="{% static 'essential/logo.png' %}" alt="AdminLTE Logo" style="width:100px;height:50px;">
 
-  <div class="card">
-    <div class="card-body register-card-body">
-      <p class="login-box-msg">Register Employee</p>
-    
-      <form action="" method="POST">
-      {% csrf_token %}
-    
-        <div class="input-group mb-3">
-           {{form.username }}
-          <div class="input-group-append">
-            <div class="input-group-text">
-              <span class="fas fa-user"></span>
-            </div>
-          </div>
-        </div>
-        <div class="input-group mb-3">
-           {{form.email  }}
-          <div class="input-group-append">
-            <div class="input-group-text">
-              <span class="fas fa-envelope"></span>
-            </div>
-          </div>
-        </div>
-        <div class="input-group mb-3">
-         
-          {{form.password1  }}
-          <div class="input-group-append">
-            <div class="input-group-text">
-              <span class="fas fa-lock"></span>
-            </div>
-          </div>
-        </div>
-        <div class="input-group mb-3">
-           {{form.password2  }}
-          <div class="input-group-append">
-            <div class="input-group-text">
-              <span class="fas fa-lock"></span>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          
-          <!-- /.col -->
-          <div class="col-4">
-            <button type="submit" class="btn btn-primary btn-block">Register</button>
-          </div>
-          <!-- /.col -->
-        </div>
-      </form>
-
-      <p> {{form.errors}}  </p>
-      <a href="{% url 'login'%}" class="text-center">I already have an account? Login</a>
     </div>
-    <!-- /.form-box -->
-  </div><!-- /.card -->
+
+    <div class="card">
+        <div class="card-body register-card-body">
+            <p class="login-box-msg" style="font-size:20px; font-weight:bold;">Register Employee</p>
+
+            <form action="" method="POST">
+                {% csrf_token %}
+
+
+                <p style="font-size:15px; font-weight:bold;">First Name</p>
+                <div class="input-group mb-3">
+                    {{registration_form.first_name }}
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-user"></span>
+                        </div>
+                    </div>
+                </div>
+                <p style="font-size:15px; font-weight:bold;">Last Name</p>
+                <div class="input-group mb-3">
+                    {{registration_form.last_name }}
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-user"></span>
+                        </div>
+                    </div>
+                </div>
+                <p style="font-size:15px; font-weight:bold;">Department</p>
+                <div class="input-group mb-3">
+                    {{registration_form.department }}
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-object-group"></span>
+                        </div>
+                    </div>
+                </div>
+                <p style="font-size:15px; font-weight:bold;">Directorate</p>
+                <div class="input-group mb-3">
+                    {{registration_form.directorate }}
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-users"></span>
+                        </div>
+                    </div>
+                </div>
+                <p style="font-size:15px; font-weight:bold;">Role</p>
+                <div class="input-group mb-3">
+                    {{registration_form.role }}
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-industry"></span>
+                        </div>
+                    </div>
+                </div>
+                <p style="font-size:15px; font-weight:bold;">Email</p>
+                <div class="input-group mb-3">
+                    {{registration_form.email }}
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-envelope"></span>
+                        </div>
+                    </div>
+                </div>
+                <p style="font-size:15px; font-weight:bold;">Password</p>
+                <div class="input-group mb-3">
+
+                    {{registration_form.password1 }}
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-lock"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group mb-3">
+                    {{registration_form.password2 }}
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-lock"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <p style="color: red;"> {{registration_form.errors}} </p>
+
+                <div class="row">
+
+                    <!-- /.col -->
+                    <div class="col-4">
+                        <button type="submit" class="btn btn-primary btn-block">Register</button>
+                    </div>
+                    <!-- /.col -->
+                </div>
+            </form>
+
+
+            <a href="{% url 'login'%}" class="text-center">I already have an account? Login</a>
+        </div>
+        <!-- /.form-box -->
+    </div><!-- /.card -->
 </div>
 <!-- /.register-box -->
-<script>
-     var  form_fields = document.getElementsByTagName('input')
-          form_fields[1].placeholder ='User name';
-          form_fields[2].placeholder ='email';
-          form_fields[3].placeholder ='Enter Password';
-          form_fields[4].placeholder ='Repeat Password';
 
-        for( var field in form_fields ){
-            form_fields[field].className += 'form-control'
-        }
-
- </script>
 {% endblock content %}

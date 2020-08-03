@@ -1,5 +1,5 @@
 from django.contrib import admin
-from adminDashboard.models import Departments,LineManager,Director,Directories,Approve, ExecutiveDirector
+from adminDashboard.models import Departments,LineManager,Director,Directories,Approve, ExecutiveDirector, HR
 
 
 # Register your models here.
@@ -9,3 +9,4 @@ admin.site.register(Director)
 admin.site.register(Directories)
 admin.site.register(Approve)
 admin.site.register(ExecutiveDirector)
+admin.site.register(HR)

@@ -15,7 +15,7 @@ from adminDashboard.views import (
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('employeeDashboard/', include('employeeDashboard.urls')),
+    path('employeeDashboard/', include('employeeDashboard.urls', namespace='employeeDashboard')),
     path('adminDashboard/', include('adminDashboard.urls', namespace='adminDashboard')),
     path('', include('UsersAuth.urls')),
 

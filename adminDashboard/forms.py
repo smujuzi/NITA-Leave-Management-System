@@ -1,6 +1,10 @@
 from django import forms
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import authenticate
 from .models import *
+
 from material import Layout, Row, Fieldset
+
 
 OPTIONS = (
     ("Approved", 'Approved'),
