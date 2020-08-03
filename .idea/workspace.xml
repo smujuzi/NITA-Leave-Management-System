@@ -2,47 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4fe181e0-6dc1-4203-97cb-05bcfc966f54" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/adminDashboard/filters.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/leavemanagement/delegate.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/search.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/essential/search.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UsersAuth/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/UsersAuth/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UsersAuth/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/UsersAuth/forms.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UsersAuth/migrations/0001_initial.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/UsersAuth/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/UsersAuth/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UsersAuth/templates/UsersAuth/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/UsersAuth/templates/UsersAuth/login.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UsersAuth/templates/UsersAuth/logout.html" beforeDir="false" afterPath="$PROJECT_DIR$/UsersAuth/templates/UsersAuth/logout.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UsersAuth/templates/UsersAuth/register.html" beforeDir="false" afterPath="$PROJECT_DIR$/UsersAuth/templates/UsersAuth/register.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UsersAuth/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/UsersAuth/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UsersAuth/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/UsersAuth/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/adminDashboard/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/adminDashboard/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/adminDashboard/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/adminDashboard/forms.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/adminDashboard/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/adminDashboard/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/includes/footer.html" beforeDir="false" afterPath="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/includes/footer.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/includes/sidenav.html" beforeDir="false" afterPath="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/includes/sidenav.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/includes/topnav.html" beforeDir="false" afterPath="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/includes/topnav.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/leavedetails.html" beforeDir="false" afterPath="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/leavedetails.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/leavemanagement/allleaves.html" beforeDir="false" afterPath="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/leavemanagement/allleaves.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/leavemanagement/approvedleaves.html" beforeDir="false" afterPath="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/leavemanagement/approvedleaves.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/leavemanagement/pendingleaves.html" beforeDir="false" afterPath="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/leavemanagement/pendingleaves.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/leavemanagement/rejectedleaves.html" beforeDir="false" afterPath="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/leavemanagement/rejectedleaves.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/adminDashboard/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/adminDashboard/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/adminDashboard/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/adminDashboard/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/employeeDashboard/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/employeeDashboard/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/employeeDashboard/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/employeeDashboard/forms.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/employeeDashboard/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/employeeDashboard/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/employeeDashboard/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/employeeDashboard/templates/base.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/employeeDashboard/templates/history.html" beforeDir="false" afterPath="$PROJECT_DIR$/employeeDashboard/templates/history.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/employeeDashboard/templates/includes/sidenav.html" beforeDir="false" afterPath="$PROJECT_DIR$/employeeDashboard/templates/includes/sidenav.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/employeeDashboard/templates/leaves_form.html" beforeDir="false" afterPath="$PROJECT_DIR$/employeeDashboard/templates/leaves_form.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/employeeDashboard/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/employeeDashboard/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/employeeDashboard/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/employeeDashboard/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/leaveproject/decorators.py" beforeDir="false" afterPath="$PROJECT_DIR$/employeeDashboard/decorators.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/leaveproject/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/leaveproject/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/leaveproject/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/leaveproject/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
