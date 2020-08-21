@@ -4,6 +4,7 @@
 
 <!-- Content Wrapper. Contains page content -->
 
+
 <style>
 
     .searchBox
@@ -22,86 +23,43 @@
 
 </style>
 
-<div class="content-wrapper" id="page">
+
+<div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <div class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1 class="m-0 text-dark">Dashboard</h1>
+                    <h1 class="m-0 text-dark">Calculate Monetary Value</h1>
                 </div><!-- /.col -->
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="{% url 'adminDashboard:pending' %}">Home</a></li>
-                        <li class="breadcrumb-item active">Rejected Leaves</li>
+                        <li class="breadcrumb-item active">All</li>
                     </ol>
                 </div><!-- /.col -->
             </div><!-- /.row -->
         </div><!-- /.container-fluid -->
     </div>
     <!-- /.content-header -->
+    {% if messages %}
 
-        <section class="content">
 
-    <div class="container-fluid">
-            <div class="row">
-                <div class="col-lg-3 col-6">
-                    <!-- small box -->
-                    <div class="small-box bg-success">
-                        <div class="inner">
-                            <h3>{{ approved_leave.count }}</h3>
-
-                            <p>Approved Leaves</p>
-                        </div>
-                        <div class="icon">
-                            <i class="ion ion-bag"></i>
-                        </div>
-                        <a href="{% url 'adminDashboard:approved'%}" class="small-box-footer">View </a>
-
-                    </div>
-                </div>
-                <!-- ./col -->
-                <div class="col-lg-3 col-6">
-                    <!-- small box -->
-                    <div class="small-box bg-info">
-                        <div class="inner">
-                            <h3>{{ pending_leave.count }}<sup style="font-size: 20px"></sup></h3>
-
-                            <p>Pending Leaves</p>
-                        </div>
-                        <div class="icon">
-                            <i class="ion ion-stats-bars"></i>
-                        </div>
-                        <a href="{% url 'adminDashboard:pending' %}" class="small-box-footer">View </a>
-                    </div>
-                </div>
-                <!-- ./col -->
-
-                <!-- ./col -->
-                <div class="col-lg-3 col-6">
-                    <!-- small box -->
-                    <div class="small-box bg-danger">
-                        <div class="inner">
-                            <h3>{{ rejected_leave.count }}</h3>
-
-                            <p>Rejected</p>
-                        </div>
-                        <div class="icon">
-                            <i class="ion ion-pie-graph"></i>
-                        </div>
-                        <a href="{% url 'adminDashboard:rejected' %}" class="small-box-footer">View </a>
-                    </div>
-                </div>
-            </div>
-
-    </section>
+      <ul class="messages" style="color:orange; font-size:20px; font-weight:bold;">
+          {% for message in messages %}
+          <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+           {% endfor %}
+      </ul>
+    {% endif %}
 
     <!-- Main content -->
     <section class="content">
         <!-- Default box -->
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Rejected Leave Requests</h3>
+                <h3 class="card-title" style="padding-right: 20px;">All Staff</h3>
+
+
 
                 <div class="card-tools">
                     <button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip"
@@ -120,52 +78,55 @@
 
 
 <!--                 ***************************** SEARCH FEATURE *****************************-->
+                <p>
+                    Select an Employee
+                </p>
+
             </div>
             <div class="card-body p-0">
                 <table class="table table-striped projects" id="myTable">
                     <thead>
+
                     <tr>
                         <th style="width: 5%">
-                            Leave Request ID
+                            User ID
                         </th>
                         <th style="width: 20%">
                             Names
                         </th>
                         <th style="width: 10%">
+                            Department
+                        </th>
+                        <th style="width: 10%">
                             Directorate
                         </th>
+                        <th>
+                            Role
+                        </th>
 
-                        <th style="width: 8%">
-                            Remaining Leave Days
+                        <th>
+                            Outstanding Leave Days
                         </th>
-                        <th style="width: 8%">
-                            Leave Type
-                        </th>
-                        <th style="width: 20%" class="text-center">
-                            Status
-                        </th>
+
                     </tr>
                     </thead>
                     <tbody>
-                    {% for leaves in rejected_leave %}
+                    {% for account in all_staff %}
                     <tr>
                         <td>
-                            {{leaves.pk}}
+                            {{account.pk}}
                         </td>
                         <td>
                             <a>
-                                {{leaves.name}}
+                                {{account.first_name}} {{account.last_name}}
                             </a>
-                            <br/>
-                            <small>
-                                Applied on {{leaves.DateApplied}}
-                            </small>
+
                         </td>
                         <td>
                             <ul class="list-inline">
 
                                 <li class="list-inline-item">
-                                    {{leaves.empDirectorate}}
+                                    {{account.department}}
                                 </li>
                             </ul>
                         </td>
@@ -173,42 +134,33 @@
                             <ul class="list-inline">
 
                                 <li class="list-inline-item">
-                                    {{leaves.OutstandingLeaveDays}}
+                                    {{account.directorate}}
                                 </li>
                             </ul>
                         </td>
                         <td class="project_progress">
-                            {{leaves.LeaveType}}
+                            {{account.role}}
                         </td>
-                        <td class="project-state">
 
-
-                            <span class="badge badge-danger">Rejected</span>
-
-                            {% if leaves.cancellation_status == True and leaves.Approval_by_Line_Manager == 'Rejected' and leaves.Approval_by_Director == 'Rejected' and leaves.Approval_by_Executive_Director == 'Rejected' %}
-                            <br/>
-                            <small style="color:orange; font-weight:bold;">
-                                CANCELLATION REQUEST REJECTED!
-                            </small>
-
-                             {% elif leaves.cancellation_status == True %}
-                            <br/>
-                            <small style="color:orange; font-weight:bold;">
-                                Cancellation in progress...
-                            </small>
-                            {% endif %}
-
-
+                        <td class="project_progress">
+                            {{account.OutstandingLeaveDays}}
                         </td>
-                        <td class="project-actions text-right">
-                            <a class="btn btn-primary btn-sm" href="{{leaves.get_absolute_url}}">
-                                <i class="fas fa-folder">
+
+
+                        <td>
+                          <a href="{% url 'adminDashboard:monetary_value_selected_employee' pk=account.pk %}"
+                             class="btn btn-info btn-sm">
+                                <i class="fas fa-pencil-alt">
+                                    Select
                                 </i>
-                                View Details
-                            </a>
-
-                            {% endfor %}
+                          </a>
                         </td>
+
+
+
+                        {% endfor %}
+
+
                     </tr>
                     </tbody>
                 </table>
@@ -221,45 +173,6 @@
     <!-- /.content -->
 </div>
 <!-- /.content-wrapper -->
-
-
-<center>
-    <div>
-        {% if emp_over_thirty %}
-
-            <p style="font-weight: bold; color:red;">
-                YOU HAVE STAFF UNDER YOUR SUPERVISION IN EXCESS OF 30 OUTSTANDING LEAVE DAYS.
-                <br>
-                PLEASE ADVISE THEM TO MAKE A LEAVE REQUEST.
-                <br>
-                YOU HAVE BEEN BLOCKED FROM USING THE SYSTEM UNTIL ALL YOUR STAFF
-                ARE BELOW OR EQUAL TO 30 OUTSTANDING LEAVE DAYS.
-                <br>
-
-                THE STAFF IN EXCESS ARE:
-
-            </p>
-            {% for emp in emp_over_thirty %}
-                <p>
-                    {{emp.first_name}} {{emp.last_name}}
-                </p>
-            {% endfor %}
-
-        {% endif %}
-    </div>
-    </center>
-
-    {% if emp_over_thirty %}
-
-
-        <script>
-
-           document.getElementById("page").style.display = "none";
-
-        </script>
-    {% endif %}
-
-
 
 
 <script>
@@ -298,7 +211,7 @@ function findDirectorate() {
 
   // Loop through all table rows, and hide those who don't match the search query
   for (i = 0; i < tr.length; i++) {
-    td = tr[i].getElementsByTagName("td")[2]; // Data to be shown
+    td = tr[i].getElementsByTagName("td")[3]; // Data to be shown
     if (td) {
       txtValue = td.textContent || td.innerText;
       if (txtValue.toUpperCase().indexOf(filter) > -1) {
@@ -311,6 +224,7 @@ function findDirectorate() {
 }
 
 </script>
+
 
 {% endblock content %}
 

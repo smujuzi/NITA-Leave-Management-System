@@ -3,7 +3,7 @@ from django.http import HttpResponse, HttpRequest
 from django.views.generic import ListView, DetailView, UpdateView
 from django.shortcuts import render, reverse
 from django.http import HttpResponse
-from adminDashboard.forms import ApprovalForm
+from adminDashboard.forms import ApprovalForm, SalaryForm
 from adminDashboard.models import *
 from UsersAuth.models import Account
 from django.contrib import messages
@@ -49,6 +49,55 @@ class Leave_tracker(View):
             print('application approved by the Executive Director')
 
 '''
+
+def exceed_thirty(department, request):
+    emp_over_thirty = Account.objects.filter(department=department.name, OutstandingLeaveDays__gt=30)
+
+    director = Account.objects.get(role="Director", directorate=department.directory)
+
+    hr = Account.objects.get(role="Line Manager", department="Human Resources")
+
+    if emp_over_thirty:
+        print("These people have an excess of 30 days leave. Please advise them to take leave")
+        for emp in emp_over_thirty:
+            print(emp.first_name)
+            print(emp.OutstandingLeaveDays)
+            send_mail(
+                subject="Excess Leave Days",
+                message="Hello " + emp.first_name + " " +emp.last_name + " ,\n You have surpassed the 30 outstanding leave days threshold."
+                                          "\n Please go to the NITA Leave Management Portal and make a leave request to unblock your supervisor's portal.",
+                from_email=hr.email,
+                recipient_list=[emp.email, director.email]
+            )
+
+    return emp_over_thirty
+
+def exceed_thirty_d(directorate, request):
+    emp_over_thirty = Account.objects.filter(directorate=directorate.name, OutstandingLeaveDays__gt=30, role="Line Manager")
+
+    executive_director = Account.objects.get(role="Executive Director")
+
+    hr = Account.objects.get(role="Line Manager", department="Human Resources")
+
+    if emp_over_thirty:
+        print("These people have an excess of 30 days leave. Please advise them to take leave")
+        for emp in emp_over_thirty:
+            print(emp.first_name)
+            print(emp.OutstandingLeaveDays)
+            send_mail(
+                subject="Excess Leave Days",
+                message="Hello " + emp.first_name + " " +emp.last_name + " ,\n You have surpassed the 30 outstanding leave days threshold."
+                                          "\n Please go to the NITA Leave Management Portal and make a leave request to unblock your supervisor's portal.",
+                from_email=hr.email,
+                recipient_list=[emp.email, executive_director.email]
+            )
+
+    return emp_over_thirty
+
+
+
+
+
 #Creates Excel document of all Leave Requests
 
 def convert_date(date_obj):
@@ -232,6 +281,10 @@ def approved(request):
                                                                             | Q(Approval_by_Executive_Director='Pending'
                                                                                 )).order_by('DateApplied')
 
+        emp_over_thirty_d = exceed_thirty_d(director.DirectorateHeaded, request)
+        context['emp_over_thirty'] = emp_over_thirty_d
+
+
         approved_leave = Leaves.objects.filter(empDirectorate=director.DirectorateHeaded, Approval_by_Line_Manager='Approved',
                                                Approval_by_Director='Approved',
                                                Approval_by_Executive_Director='Approved').order_by('DateApplied')
@@ -246,6 +299,9 @@ def approved(request):
         pending_leave = Leaves.objects.filter(empDepartment=line_manager.Departments_under).filter(
             Q(Approval_by_Line_Manager='Pending') | Q(Approval_by_Director='Pending')
             | Q(Approval_by_Executive_Director='Pending')).order_by('DateApplied')
+
+        emp_over_thirty = exceed_thirty(line_manager.Departments_under, request)
+        context['emp_over_thirty'] = emp_over_thirty
 
         approved_leave = Leaves.objects.filter(empDepartment=line_manager.Departments_under, Approval_by_Line_Manager='Approved',
                                                Approval_by_Director='Approved',
@@ -307,6 +363,10 @@ def pending(request):
                                                                             | Q(Approval_by_Director='Pending')
                                                                             | Q(Approval_by_Executive_Director='Pending'
                                                                                 )).order_by('DateApplied')
+
+        emp_over_thirty_d = exceed_thirty_d(director.DirectorateHeaded, request)
+        context['emp_over_thirty'] = emp_over_thirty_d
+
         approved_leave = Leaves.objects.filter(empDirectorate=director.DirectorateHeaded, Approval_by_Line_Manager='Approved',
                                                Approval_by_Director='Approved',
                                                Approval_by_Executive_Director='Approved').order_by('DateApplied')
@@ -321,6 +381,9 @@ def pending(request):
         pending_leave = Leaves.objects.filter(empDepartment=line_manager.Departments_under).filter(
             Q(Approval_by_Line_Manager='Pending') | Q(Approval_by_Director='Pending')
             | Q(Approval_by_Executive_Director='Pending')).order_by('DateApplied')
+
+        emp_over_thirty = exceed_thirty(line_manager.Departments_under, request)
+        context['emp_over_thirty'] = emp_over_thirty
 
         approved_leave = Leaves.objects.filter(empDepartment=line_manager.Departments_under,
                                                Approval_by_Line_Manager='Approved',
@@ -384,6 +447,10 @@ def rejected(request):
                                                                             | Q(Approval_by_Executive_Director='Pending'
                                                                                 )).order_by('DateApplied')
 
+        emp_over_thirty_d = exceed_thirty_d(director.DirectorateHeaded, request)
+        context['emp_over_thirty'] = emp_over_thirty_d
+
+
         approved_leave = Leaves.objects.filter(empDirectorate=director.DirectorateHeaded, Approval_by_Line_Manager='Approved',
                                                Approval_by_Director='Approved',
                                                Approval_by_Executive_Director='Approved').order_by('DateApplied')
@@ -398,6 +465,10 @@ def rejected(request):
         pending_leave = Leaves.objects.filter(empDepartment=line_manager.Departments_under).filter(
             Q(Approval_by_Line_Manager='Pending') | Q(Approval_by_Director='Pending')
             | Q(Approval_by_Executive_Director='Pending')).order_by('DateApplied')
+
+        emp_over_thirty = exceed_thirty(line_manager.Departments_under, request)
+        context['emp_over_thirty'] = emp_over_thirty
+
 
         approved_leave = Leaves.objects.filter(empDepartment=line_manager.Departments_under, Approval_by_Line_Manager='Approved',
                                                Approval_by_Director='Approved',
@@ -467,6 +538,10 @@ class LeaveListView(ListView):
                                                                                | Q(Approval_by_Executive_Director='Pending'
                                                                                   )).order_by('DateApplied')
 
+            emp_over_thirty_d = exceed_thirty_d(director.DirectorateHeaded, request)
+            context['emp_over_thirty'] = emp_over_thirty_d
+
+
             approved_leave = Leaves.objects.filter(empDirectorate=director.DirectorateHeaded, Approval_by_Line_Manager='Approved',
                                                    Approval_by_Director='Approved',
                                                    Approval_by_Executive_Director='Approved').order_by('DateApplied')
@@ -483,6 +558,11 @@ class LeaveListView(ListView):
             pending_leave = Leaves.objects.filter(empDepartment=line_manager.Departments_under).filter(
                 Q(Approval_by_Line_Manager='Pending') | Q(Approval_by_Director='Pending')
                 | Q(Approval_by_Executive_Director='Pending')).order_by('DateApplied')
+
+            emp_over_thirty = exceed_thirty(line_manager.Departments_under, request)
+            context['emp_over_thirty'] = emp_over_thirty
+
+
 
             approved_leave = Leaves.objects.filter(empDepartment=line_manager.Departments_under,
                                                    Approval_by_Line_Manager='Approved',
@@ -549,7 +629,7 @@ class LeaveUpdateView(UpdateView):
         return render(request, self.template_name, context)
 
     @staticmethod
-    def approved(selected_employee, sender):
+    def approved(selected_leave_request, selected_employee, sender):
 
         hr = HR.objects.all().first()
         name_hr = hr.name
@@ -561,13 +641,28 @@ class LeaveUpdateView(UpdateView):
         split_line_name = name.split(' ')
         email_name = Account.objects.get(last_name=split_line_name[1], first_name=split_line_name[0])
 
-        send_mail(
-            subject="Leave Request",
-            message="Hello " + name + " ,\n I have approved this leave request. "
-                                      "\n Please go to the NITA Leave Management Portal to action the next phase of this request.",
-            from_email=sender,
-            recipient_list=[email_name.email, email_name_hr.email]
-        )
+
+        if selected_leave_request.cancellation_status == True:
+            send_mail(
+                subject="Leave Request Cancellation",
+                message="Hello " + name + " ,\n I have approved the cancellation of this leave request. "
+                                          "\n Please go to the NITA Leave Management Portal to action the next phase of this cancellation request.",
+                from_email=sender,
+                recipient_list=[email_name.email, email_name_hr.email]
+            )
+            selected_leave_request.OutstandingLeaveDays = selected_leave_request.OutstandingLeaveDays + selected_leave_request.NumberOfDaystaken
+            selected_leave_request.save()
+
+        else:
+            send_mail(
+                subject="Leave Request",
+                message="Hello " + name + " ,\n I have approved this leave request. "
+                                          "\n Please go to the NITA Leave Management Portal to action the next phase of this request.",
+                from_email=sender,
+                recipient_list=[email_name.email, email_name_hr.email]
+            )
+
+
 
     @staticmethod
     def rejected(selected_employee, sender, reason):
@@ -575,18 +670,31 @@ class LeaveUpdateView(UpdateView):
         split_employee = employee.split(' ')
         email_employee = Account.objects.get(last_name=split_employee[1], first_name=split_employee[0])
 
-        send_mail(
-            subject="Leave Request",
-            message="Hello " + employee + " ,\n Sorry, your request to take leave has been rejected. The reason is below: \n  " +reason,
-            from_email=sender,
-            recipient_list=[email_employee.email]
-        )
+        if selected_employee.cancellation_status == True:
+            send_mail(
+                subject="Leave Request",
+                message="Hello " + employee + " ,\n Sorry, your cancellation request to take leave has been rejected. The reason is below: \n  " +reason,
+                from_email=sender,
+                recipient_list=[email_employee.email]
+            )
+        else:
+            send_mail(
+                subject="Leave Request",
+                message="Hello " + employee + " ,\n Sorry, your request to take leave has been rejected. The reason is below: \n  " + reason,
+                from_email=sender,
+                recipient_list=[email_employee.email]
+            )
+            selected_employee.OutstandingLeaveDays = selected_employee.OutstandingLeaveDays + selected_employee.NumberOfDaystaken
+            selected_employee.save()
+
+            email_employee.OutstandingLeaveDays = selected_employee.OutstandingLeaveDays
+            email_employee.save()
 
     def post(self, request, *args, **kwargs):
 
         leave_id = self.kwargs.get('pk')
 
-        selected_employee = get_object_or_404(Leaves, pk=leave_id)
+        selected_leave_request = get_object_or_404(Leaves, pk=leave_id)
 
 
         name = request.user.first_name + " " + request.user.last_name  # Name of person currently logged in
@@ -608,39 +716,46 @@ class LeaveUpdateView(UpdateView):
 
             if executive_director:  # Checks if logged in user is the excutive director
                 # Change Executive Director field in leave model to approved
-                selected_employee.Approval_by_Executive_Director = post.leave_status
-                selected_employee.save()
+                selected_leave_request.Approval_by_Executive_Director = post.leave_status
+                selected_leave_request.save()
+
+                employee = selected_leave_request
 
                 if post.leave_status == "Approved":
-                    self.approved(selected_employee, request.user.email)
+                    self.approved(selected_leave_request, employee, request.user.email) #Once ED approves an email is sent to employee that applied for leave
+
                 elif post.leave_status == "Rejected":
-                    self.rejected(selected_employee, request.user.email, post.notes)
+                    self.rejected(selected_leave_request, request.user.email, post.notes)
 
             if director:  # Checks if logged in user is a director
                 # Change Director field in leave model to approved
-                selected_employee.Approval_by_Director = post.leave_status
-                selected_employee.save()
+                selected_leave_request.Approval_by_Director = post.leave_status
+                selected_leave_request.save()
 
                 # Need to send email to Executive Director to action Leave.
                 if post.leave_status == "Approved":
                     obj = Account.objects.get(role="Executive Director") #There should be only one account with the role Executive Director
                     ed_name = obj.first_name + " " + obj.last_name
                     ed = ExecutiveDirector.objects.get(name=ed_name)
-                    self.approved(ed, request.user.email)
+
+                    self.approved(selected_leave_request, ed, request.user.email)
+
                 elif post.leave_status == "Rejected":
-                    self.rejected(selected_employee, request.user.email, post.notes)
+                    self.rejected(selected_leave_request, request.user.email, post.notes)
 
             if line_manager:  # Checks if logged in user is a manager
 
                 # Change Line Manager field in leave model to approved
-                selected_employee.Approval_by_Line_Manager = post.leave_status
-                selected_employee.save()
+                selected_leave_request.Approval_by_Line_Manager = post.leave_status
+                selected_leave_request.save()
                 # Send email to Head of Directorate to action Leave.
+                dir = selected_leave_request.empDirector
 
                 if post.leave_status == "Approved":
-                    self.approved(selected_employee.empDirector, request.user.email)
+                    self.approved(selected_leave_request, dir, request.user.email)
+
                 elif post.leave_status == "Rejected":
-                    self.rejected(selected_employee, request.user.email, post.notes)
+                    self.rejected(selected_leave_request, request.user.email, post.notes)
 
             return redirect(reverse("adminDashboard:LeaveDetailView"))
 
@@ -650,8 +765,71 @@ class LeaveUpdateView(UpdateView):
             context['approval_form'] = approval_form
             return render(request, self.template_name, context)
 
+class MonetaryValueAllStaff(ListView):
+    template_name = "adminDashboard/leavemanagement/monetary_value_all_staff.html"
+
+    def get(self, request, *args, **kwargs):
+
+        context = {}
+
+        all_staff = Account.objects.all()
+
+        context['all_staff'] = all_staff
+
+        return render(request, self.template_name, context)
+
+
+class MonetaryValueSelectedEmployee(ListView):
+
+    template_name = "adminDashboard/leavemanagement/monetary_value_selected_employee.html"
+
+    def get(self, request, *args, **kwargs):
+        account_id = self.kwargs.get('pk')
+        selected_employee = get_object_or_404(Account, pk=account_id)
+
+        context = {}
+        salary_form = SalaryForm()
+
+        print(account_id)
+        print(selected_employee.first_name)
+
+        context['selected_employee'] = selected_employee
+        context['salary_form'] = salary_form
+
+        return render(request, self.template_name, context)
+
+    def post(self, request, *args, **kwargs):
+        context = {}
+
+        account_id = self.kwargs.get('pk')
+        selected_employee = get_object_or_404(Account, pk=account_id)
+
+        salary_form = SalaryForm(request.POST)
+
+        if salary_form.is_valid():
+            salary = salary_form.save(commit=False)
+
+            print("Salary = ")
+            print(salary.salary)
+            avg_working_days_per_month = 22
+            monetary_value_per_day = salary.salary / avg_working_days_per_month
+            monetary_value_per_day = round(monetary_value_per_day, 0)
+
+            monetary_value_outstanding_leave_days = monetary_value_per_day * selected_employee.OutstandingLeaveDays
+            monetary_value_outstanding_leave_days = round(monetary_value_outstanding_leave_days, 0)
+
+            context['monetary_value_per_day'] = monetary_value_per_day
+            context['monetary_value_outstanding_leave_days'] = monetary_value_outstanding_leave_days
+
+        salary_form = SalaryForm()
+        context['salary_form'] = salary_form
+        context['selected_employee'] = selected_employee
+
+        return render(request, self.template_name, context)
+
+
 #Display all users to delegate privileges
-class delegate(ListView):
+class Delegate(ListView):
     template_name = "adminDashboard/leavemanagement/delegate.html"
 
     def get(self, request, *args, **kwargs):
@@ -663,6 +841,7 @@ class delegate(ListView):
         context['all_staff'] = all_staff
 
         return render(request, self.template_name, context)
+
 
 #Assigns privileges to User
 def handle(request, slug):

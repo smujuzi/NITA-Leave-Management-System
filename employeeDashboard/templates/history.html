@@ -69,6 +69,9 @@
                         <th style="width: 10%">
                             End Date
                         </th>
+                        <th style="width: 15%">
+
+                        </th>
                     </tr>
                     </thead>
                     <tbody>
@@ -128,6 +131,25 @@
 
                             {% endif %}
 
+                            {% if l.cancellation_status == True and l.Approval_by_Line_Manager == 'Approved' and l.Approval_by_Director == 'Approved' and l.Approval_by_Executive_Director == 'Approved' %}
+                            <br/>
+                            <small style="color:orange; font-weight:bold;">
+                                CANCELLATION REQUEST APPROVED!
+                            </small>
+
+                            {% elif l.cancellation_status == True and l.Approval_by_Line_Manager == 'Approved' and l.Approval_by_Director == 'Approved' and l.Approval_by_Executive_Director == 'Approved' %}
+                            <br/>
+                            <small style="color:orange; font-weight:bold;">
+                                CANCELLATION REQUEST REJECTED!
+                            </small>
+
+                             {% elif l.cancellation_status == True %}
+                            <br/>
+                            <small style="color:orange; font-weight:bold;">
+                                Cancellation in progress...
+                            </small>
+                            {% endif %}
+
                         </td>
                         <td class="project-actions text-left">
 
@@ -140,6 +162,15 @@
 
                             {{l.EndDate}}
 
+
+                        </td>
+                        <td class="project-actions text-right">
+                            <a href="{% url 'employeeDashboard:cancel' pk=l.pk %}"
+                               class="btn btn-info btn-sm">
+                                <i class="fas fa-pencil-alt">
+                                    Cancel Leave Request
+                                </i>
+                            </a>
                             {% endfor %}
                         </td>
                     </tr>

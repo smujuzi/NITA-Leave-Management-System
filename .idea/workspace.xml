@@ -2,9 +2,40 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4fe181e0-6dc1-4203-97cb-05bcfc966f54" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/UsersAuth/migrations/0004_account_outstandingleavedays.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/UsersAuth/migrations/0005_auto_20200813_1747.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/UsersAuth/migrations/0006_auto_20200813_1758.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/UsersAuth/migrations/0007_account_salary.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/UsersAuth/migrations/0008_account_start_of_month_tracker.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/UsersAuth/migrations/0009_auto_20200820_1222.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/UsersAuth/migrations/0010_remove_account_start_of_month_tracker.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/UsersAuth/migrations/0011_account_start_of_month_tracker.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/leavemanagement/monetary_value_all_staff.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/leavemanagement/monetary_value_selected_employee.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/employeeDashboard/migrations/0027_leaves_status.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/employeeDashboard/migrations/0028_auto_20200812_1326.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/media/documents/files/egg_rGTUyh1.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Getting Started.docx" beforeDir="false" afterPath="$PROJECT_DIR$/Getting Started.docx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UsersAuth/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/UsersAuth/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UsersAuth/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/UsersAuth/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminDashboard/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/adminDashboard/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/includes/footer.html" beforeDir="false" afterPath="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/includes/footer.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/includes/sidenav.html" beforeDir="false" afterPath="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/includes/sidenav.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/leavedetails.html" beforeDir="false" afterPath="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/leavedetails.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/leavemanagement/allleaves.html" beforeDir="false" afterPath="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/leavemanagement/allleaves.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/leavemanagement/approvedleaves.html" beforeDir="false" afterPath="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/leavemanagement/approvedleaves.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/leavemanagement/pendingleaves.html" beforeDir="false" afterPath="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/leavemanagement/pendingleaves.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/leavemanagement/rejectedleaves.html" beforeDir="false" afterPath="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/leavemanagement/rejectedleaves.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminDashboard/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/adminDashboard/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminDashboard/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/adminDashboard/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/employeeDashboard/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/employeeDashboard/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/employeeDashboard/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/employeeDashboard/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/employeeDashboard/templates/history.html" beforeDir="false" afterPath="$PROJECT_DIR$/employeeDashboard/templates/history.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/employeeDashboard/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/employeeDashboard/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/employeeDashboard/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/employeeDashboard/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/leaveproject/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/leaveproject/settings.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -30,16 +61,16 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="last_opened_file_path" value="$USER_HOME$/OneDrive/NITA Uganda/Completed System/nita-lms" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/adminDashboard/templates/adminDashboard/leavemanagement" />
     <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\Stuart\Desktop\nita-lms\adminDashboard\templates\adminDashboard\leavemanagement" />
+      <recent name="C:\Users\Stuart\Desktop\nita-lms" />
       <recent name="C:\Users\Stuart\Desktop\nita-lms\employeeDashboard" />
       <recent name="C:\Users\Stuart\Desktop\nita-lms\UsersAuth" />
       <recent name="C:\Users\Stuart\Desktop\nita-lms\static\essential" />
-      <recent name="C:\Users\Stuart\Desktop\nita-lms\adminDashboard\templates\adminDashboard" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\Stuart\Desktop\nita-lms\employeeDashboard" />
@@ -87,22 +118,21 @@
       <screen x="0" y="0" width="1536" height="864" />
     </state>
     <state x="0" y="147" key="SettingsEditor/0.0.1536.864@0.0.1536.864" timestamp="1596440021181" />
-    <state x="1680" y="294" key="SettingsEditor/0.0.1680.1010/1680.31.1280.984@1680.31.1280.984" timestamp="1588675680108" />
-    <state x="93" y="93" width="1350" height="678" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1595930257497">
+    <state x="93" y="93" width="1350" height="678" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1597913666238">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state x="93" y="93" width="1350" height="678" key="com.intellij.history.integration.ui.views.FileHistoryDialog/0.0.1536.864@0.0.1536.864" timestamp="1595930257497" />
+    <state x="93" y="93" width="1350" height="678" key="com.intellij.history.integration.ui.views.FileHistoryDialog/0.0.1536.864@0.0.1536.864" timestamp="1597913666238" />
     <state x="93" y="93" width="1350" height="678" maximized="true" key="com.intellij.history.integration.ui.views.SelectionHistoryDialog" timestamp="1593091175927">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
     <state x="93" y="93" width="1350" height="678" maximized="true" key="com.intellij.history.integration.ui.views.SelectionHistoryDialog/0.0.1536.864@0.0.1536.864" timestamp="1593091175927" />
-    <state x="465" y="256" key="com.intellij.ide.util.TipDialog" timestamp="1596613448251">
+    <state x="465" y="256" key="com.intellij.ide.util.TipDialog" timestamp="1597992659911">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state x="465" y="256" key="com.intellij.ide.util.TipDialog/0.0.1536.864@0.0.1536.864" timestamp="1596613448251" />
-    <state x="111" y="155" width="611" height="526" key="find.popup" timestamp="1596468035624">
+    <state x="465" y="256" key="com.intellij.ide.util.TipDialog/0.0.1536.864@0.0.1536.864" timestamp="1597992659911" />
+    <state x="544" y="119" width="609" height="526" key="find.popup" timestamp="1597931105143">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state x="111" y="155" width="611" height="526" key="find.popup/0.0.1536.864@0.0.1536.864" timestamp="1596468035624" />
+    <state x="544" y="119" width="609" height="526" key="find.popup/0.0.1536.864@0.0.1536.864" timestamp="1597931105143" />
   </component>
 </project>

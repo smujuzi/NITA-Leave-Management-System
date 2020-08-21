@@ -20,8 +20,11 @@
 
     }
 
+
+
+
 </style>
-<div class="content-wrapper">
+<div class="content-wrapper" id="page" >
     <!-- Content Header (Page header) -->
     <div class="content-header">
         <div class="container-fluid">
@@ -41,7 +44,7 @@
     <!-- /.content-header -->
 
     <!-- Main content -->
-    <section class="content">
+    <section class="content" >
 
     <div class="container-fluid">
             <div class="row">
@@ -191,7 +194,13 @@
                             <li class="list-item"> Pending</li>
 
 
+                            {% endif %}
 
+                             {% if leaves.cancellation_status == True %}
+                            <br/>
+                            <small style="color:orange; font-weight:bold;">
+                                Cancellation in progress...
+                            </small>
                             {% endif %}
 
                         </td>
@@ -215,8 +224,48 @@
     </section>
     <!-- /.content -->
 
+
+
 </div>
 <!-- /.content-wrapper -->
+    <center>
+    <div>
+        {% if emp_over_thirty %}
+
+            <p style="font-weight: bold; color:red;">
+                YOU HAVE STAFF UNDER YOUR SUPERVISION IN EXCESS OF 30 OUTSTANDING LEAVE DAYS.
+                <br>
+                PLEASE ADVISE THEM TO MAKE A LEAVE REQUEST.
+                <br>
+                YOU HAVE BEEN BLOCKED FROM USING THE SYSTEM UNTIL ALL YOUR STAFF
+                ARE BELOW OR EQUAL TO 30 OUTSTANDING LEAVE DAYS.
+                <br>
+
+                THE STAFF IN EXCESS ARE:
+
+            </p>
+            {% for emp in emp_over_thirty %}
+                <p>
+                    {{emp.first_name}} {{emp.last_name}}
+                </p>
+            {% endfor %}
+
+        {% endif %}
+    </div>
+    </center>
+
+    {% if emp_over_thirty %}
+
+
+        <script>
+
+           document.getElementById("page").style.display = "none";
+
+        </script>
+    {% endif %}
+
+
+
 
 <script>
 

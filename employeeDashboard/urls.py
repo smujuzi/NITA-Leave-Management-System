@@ -15,5 +15,7 @@ urlpatterns = [
     path('leavehistory', employee_views.leave_history, name="history"),
     path('', ApplyLeaveView.as_view(), name="apply"),
     path('adminDashboard', admin_view, name="adminPage"),
+    path('Cancel/<int:pk>/', employee_views.cancel_request, name='cancel'),
+
  
 ]

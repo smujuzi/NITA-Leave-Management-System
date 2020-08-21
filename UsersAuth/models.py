@@ -75,7 +75,8 @@ class Account(AbstractBaseUser, PermissionsMixin):
     role = models.CharField(max_length=200, null=False, blank=False, default='Employee') #There should be only one account with the role Executive Director
     slug = models.SlugField(blank= True, unique=True, default=uuid.uuid4)
 
-
+    salary = models.IntegerField(null=False, default=0)
+    OutstandingLeaveDays = models.IntegerField(null=False, default=0)
     date_joined = models.DateTimeField(verbose_name='date joined', auto_now_add=True)
     last_login = models.DateTimeField(verbose_name='last login', auto_now=True)
     is_line_manager = models.BooleanField(default=False)
@@ -85,6 +86,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
+    start_of_month_tracker = models.DateTimeField(auto_now_add=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name', 'department', 'directorate']
@@ -103,6 +105,6 @@ class Account(AbstractBaseUser, PermissionsMixin):
         return True
 
 
-@receiver(post_delete, sender=Account)
-def submission_delete(sender, instance, **kwargs):
-    instance.image.delete(False)
+# @receiver(post_delete, sender=Account)
+# def submission_delete(sender, instance, **kwargs):
+#     instance.image.delete(False)

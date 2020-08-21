@@ -25,7 +25,7 @@ class DateTimeInput(forms.DateTimeInput):
 
 class LeaveForm(forms.ModelForm):
     OutstandingLeaveDays = forms.IntegerField(widget=forms.TextInput(
-        attrs={'readonly': 'readonly', 'placeholder': '26'}))
+        attrs={'readonly': 'readonly', 'placeholder': '26'})) #26 is a random number chosen for placeholder feature to work
 
     name = forms.CharField(widget=forms.TextInput(
         attrs={'readonly': 'readonly'}))

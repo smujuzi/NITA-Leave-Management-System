@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, get_object_or_404, redirect
 from adminDashboard.models import *
 from employeeDashboard.models import *
 from django.views.generic import CreateView
@@ -28,49 +28,16 @@ class ApplyLeaveView(View):
         current_user = request.user.first_name + " " + request.user.last_name
         remaining_leave = 1000
 
-        director = Director.objects.filter(name=current_user)  # Filters for logged in user in list of Directors
-        line_manager = LineManager.objects.filter(name=current_user)  # Filters for logged in user in list of Line Managers
-        executive_director = ExecutiveDirector.objects.filter(name=current_user)  # Filters for logged in user in list of Executive Director
-
         context = {}
 
-        try:
-            applied_for_leave = Leaves.objects.filter(name=current_user).latest('id').id #Check if a leave request has been
-                                                                                        # made before by getting previous ID
-        except Leaves.DoesNotExist:
-            applied_for_leave = None
-            leave_form = LeaveForm(
+        leave_form = LeaveForm(initial={
+            "name": request.user.first_name + " " + request.user.last_name,
+            "OutstandingLeaveDays": request.user.OutstandingLeaveDays,
 
-                initial={
-                    "name": request.user.first_name + " " + request.user.last_name,
-                    "OutstandingLeaveDays": 24,
-                }
-            )
+        })
 
-        if applied_for_leave:
-
-          #Checks if the user has already made a previous leave application. If so, remaining days are calculated
-            prev = Leaves.objects.filter(name=current_user).latest('id').id
-            remaining_leave = Leaves.objects.get(pk=prev)
-
-            leave_form = LeaveForm(
-
-                initial={
-                    "name": request.user.first_name + " " + request.user.last_name,
-                    "OutstandingLeaveDays": remaining_leave.OutstandingLeaveDays,
-
-
-                }
-            )
-            remaining_leave = remaining_leave.OutstandingLeaveDays
-
-        elif request.user.is_staff:
-            leave_form = LeaveForm(initial={
-                "name": request.user.first_name + " " + request.user.last_name,
-                "OutstandingLeaveDays": 36,
-
-            })
-
+        if request.user.OutstandingLeaveDays > 30:
+            messages.warning(request, f'YOU HAVE TOO MANY LEAVE DAYS! PLEASE APPLY FOR LEAVE TO UNBLOCK THE PORTAL FOR YOUR SUPERVISOR')
 
         out_of_leave = 0 #Used to ensure that "Remaining leave" doesn't go lower than this value
         context['leave_form'] = leave_form
@@ -79,8 +46,53 @@ class ApplyLeaveView(View):
 
         return render(request, self.template_name, context)
 
+    @staticmethod
+    def email_leave_request(request):
+
+        if request.user.role == "Employee":
+
+            line_manager = Account.objects.get(role="Line Manager", department=request.user.department)
+
+
+
+
+            # Sends email to line manager requesting for Leave
+            send_mail(
+                subject="Leave Request",
+                message="Hello " + line_manager.first_name + " " + line_manager.last_name + " ,\n I am requesting to go for leave. "
+                                                  "\n Please go to the NITA Leave Management Portal to action this request.",
+                from_email=request.user.email,
+                recipient_list=[line_manager.email]
+            )
+
+        elif request.user.role == "Line Manager":
+
+            director = Account.objects.get(role="Director", directorate=request.user.directorate)
+            # Sends email to director requesting for Leave
+            send_mail(
+                subject="Leave Request",
+                message="Hello " + director.first_name + " " + director.last_name + " ,\n I am requesting to go for leave. "
+                                                     "\n Please go to the NITA Leave Management Portal to action this request.",
+                from_email=request.user.email,
+                recipient_list=[director.email]
+            )
+        elif request.user.role == "Director":
+
+            executive_director = Account.objects.get(role="Executive Director")
+            # Sends email to executive director requesting for Leave
+            send_mail(
+                subject="Leave Request",
+                message="Hello " + executive_director.first_name + " " + executive_director.last_name + " ,\n I am requesting to go for leave. "
+                                                     "\n Please go to the NITA Leave Management Portal to action this request.",
+                from_email=request.user.email,
+                recipient_list=[executive_director.email]
+            )
+
+
+
     def post(self, request, *args, **kwargs):
         context = {}
+
 
         leave_form = LeaveForm(request.POST, request.FILES)
 
@@ -92,26 +104,23 @@ class ApplyLeaveView(View):
                 messages.warning(request, f'YOU HAVE EXCEEDED YOUR ALLOCATED NUMBER OF LEAVE DAYS')
                 return redirect('employeeDashboard:apply')
 
+            edit_account_leave_days = Account.objects.get(email=request.user.email)
+            edit_account_leave_days.OutstandingLeaveDays = result
+            edit_account_leave_days.save()
+
             leave_user.OutstandingLeaveDays = result
+
+            if request.user.role == "Director":
+                leave_user.Approval_by_Line_Manager = "Approved"
+
+            if request.user.role == "Executive Director":
+                leave_user.Approval_by_Line_Manager = "Approved"
+                leave_user.Approval_by_Director = "Approved"
+
             leave_user.save()
 
+            self.email_leave_request(request)
 
-            # Finds the line manager of the department
-            hold = leave_user.empDepartment
-            department = LineManager.objects.get(Departments_under=hold)
-            line_manager = department.name
-            split_line_manager = line_manager.split(' ')
-            email_line_manager = Account.objects.get(last_name=split_line_manager[1], first_name=split_line_manager[0])
-            print("Email =")
-            print(email_line_manager.email)
-            #Sends email to line manager requesting for Leave
-            send_mail(
-                subject="Leave Request",
-                message="Hello "+line_manager+" ,\n I am requesting to go for leave. "
-                                              "\n Please go to the NITA Leave Management Portal to action this request.",
-                from_email=request.user.email,
-                recipient_list=[email_line_manager.email]
-            )
 
             return redirect('employeeDashboard:history')
         else:
@@ -130,4 +139,24 @@ def leave_history(request):  #Displays all leave requests a user has made
         'leave_history': leave_history
     }
     return render(request, 'history.html', context)
+
+def cancel_request(request , *args, **kwargs):
+    leave_id = kwargs.get('pk')
+    selected_leave_request = get_object_or_404(Leaves, pk=leave_id)
+    selected_leave_request.Approval_by_Line_Manager = 'Pending'
+    selected_leave_request.Approval_by_Director = 'Pending'
+    selected_leave_request.Approval_by_Executive_Director = 'Pending'
+    selected_leave_request.cancellation_status = True
+
+    selected_leave_request.save()
+
+
+    current_user = request.user.first_name + " " + request.user.last_name
+    leave_history = Leaves.objects.filter(name=current_user)
+
+    context = {
+        'leave_history': leave_history
+    }
+    return render(request, 'history.html', context)
+
 

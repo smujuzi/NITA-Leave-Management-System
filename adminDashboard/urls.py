@@ -14,7 +14,9 @@ from adminDashboard.views import (
 app_name = 'adminDashboard'
 urlpatterns = [
     path('', views.admin_view, name='adminHome'),
-    path('delegate/', views.delegate.as_view(), name="delegate"),
+    path('delegate/', views.Delegate.as_view(), name="delegate"),
+    path('monetary_value_all_staff/', views.MonetaryValueAllStaff.as_view(), name="monetary_value_all_staff"),
+    path('monetary_value_selected_employee/<int:pk>/', views.MonetaryValueSelectedEmployee.as_view(), name="monetary_value_selected_employee"),
     path('approved/', views.approved, name="approved"),
     path('pending/', views.pending, name="pending"),
     path('rejected/', views.rejected, name="rejected"),

@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate
 from .models import *
+from UsersAuth.models import Account
 
 from material import Layout, Row, Fieldset
 
@@ -29,5 +30,13 @@ class ApprovalForm(forms.ModelForm):
         fields = ['leave_status', 'notes']
 
     layout = Layout('leave_status', 'notes')
+
+
+class SalaryForm(forms.ModelForm):
+    salary = forms.IntegerField()
+
+    class Meta:
+        model = Account
+        fields = ['salary']
 
 

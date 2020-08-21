@@ -1,6 +1,10 @@
 from django.db import models
 from adminDashboard.models import Approve, Directories, Departments, Director
 from django.shortcuts import reverse
+from datetime import timedelta, datetime
+from math import floor
+##also import dateutil library, its more precise, but has to be installed. ##pip install python-dateutil
+from dateutil.relativedelta import relativedelta
 
 # Create your models here.
 class Leaves(models.Model):
@@ -36,6 +40,7 @@ class Leaves(models.Model):
     Approval_by_Line_Manager = models.CharField(max_length=10, default='Pending')
     Approval_by_Director = models.CharField(max_length=10, default='Pending')
     Approval_by_Executive_Director = models.CharField(max_length=10, default='Pending')
+    cancellation_status = models.BooleanField(default=False)
 
 
     def get_absolute_url(self):
