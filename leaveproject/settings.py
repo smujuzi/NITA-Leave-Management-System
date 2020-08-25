@@ -38,7 +38,6 @@ if DEBUG:
 
 INSTALLED_APPS = [
     'UsersAuth',
-    'AdminsAuth',
     'crispy_forms',
     'employeeDashboard',
     'adminDashboard',
