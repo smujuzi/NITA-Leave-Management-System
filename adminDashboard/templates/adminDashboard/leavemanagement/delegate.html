@@ -70,15 +70,29 @@
                         <i class="fas fa-times"></i></button>
                 </div>
 
-<!--                ***************************** SEARCH FEATURE *****************************-->
+                <!-- Search form -->
 
-                <input type="text" id="searchName" onkeyup="findName()" class="searchBox" placeholder="Search by Name...">
+                <div class="row">
+                    <div class=" col-md-6">
+                        <form class="form-inline ">
+                            
+                            <input class="form-control form-control-sm mr-3 w-50" type="text" id="searchName" onkeyup="findName()" class="searchBox" placeholder="Search by Name..."
+                            aria-label="Search">
+                            <i class="fas fa-search" aria-hidden="true"></i>
+                        </form>
+                        
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <form class="form-inline ">
+                            <input type="text" id="searchDirectorate" onkeyup="findDirectorate()" class=" form-control form-control-sm mr-3 w-50" placeholder="Search by Directorate..." aria-label="Search">
+                            
+                            <i class="fas fa-search" aria-hidden="true"></i>
+                        </form>
+                    </div>
+                </div>
 
-                <input type="text" id="searchDirectorate" onkeyup="findDirectorate()" class="searchBox" placeholder="Search by Directorate...">
-
-
-<!--                 ***************************** SEARCH FEATURE *****************************-->
-
+                <!-- Search form -->
 
             </div>
             <div class="card-body p-0">
