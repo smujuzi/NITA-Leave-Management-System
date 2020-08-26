@@ -4,23 +4,7 @@
 
 <!-- Content Wrapper. Contains page content -->
 
-<style>
 
-    .searchBox
-    {
-      background-image: url(/static/essential/search.png); /* Add a search icon to input */
-      background-position: 0px 12px; /* Position the search icon */
-      background-repeat: no-repeat; /* Do not repeat the icon image */
-      background-size: 30px 30px;
-      width: 100%;
-      font-size: 16px; /* Increase font-size */
-      padding-left: 40px !important;
-      border: 10px solid #ddd; /* Add a grey border */
-      margin-bottom: 12px; /* Add some space below the input */
-
-    }
-
-</style>
 
 <div class="content-wrapper" id="page">
     <!-- Content Header (Page header) -->
@@ -96,12 +80,18 @@
 
     </section>
 
+
+    <section class="content card-body mb-3 ml-2">
+        <p>
+            <h3 class="card-title" style="position:relative; float:left;" >Rejected Leave Requests</h3>
+         </p>
+    </section>
     <!-- Main content -->
     <section class="content">
         <!-- Default box -->
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Rejected Leave Requests</h3>
+                
 
                 <div class="card-tools">
                     <button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip"
@@ -112,14 +102,29 @@
                         <i class="fas fa-times"></i></button>
                 </div>
 
-<!--                ***************************** SEARCH FEATURE *****************************-->
+                <!-- Search form -->
 
-                <input type="text" id="searchName" onkeyup="findName()" class="searchBox" placeholder="Search by Name...">
+                <div class="row">
+                    <div class=" col-md-6">
+                        <form class="form-inline ">
+                            
+                            <input class="form-control form-control-sm mr-3 w-50" type="text" id="searchName" onkeyup="findName()" class="searchBox" placeholder="Search by Name..."
+                            aria-label="Search">
+                            <i class="fas fa-search" aria-hidden="true"></i>
+                        </form>
+                        
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <form class="form-inline ">
+                            <input type="text" id="searchDirectorate" onkeyup="findDirectorate()" class=" form-control form-control-sm mr-3 w-50" placeholder="Search by Directorate..." aria-label="Search">
+                            
+                            <i class="fas fa-search" aria-hidden="true"></i>
+                        </form>
+                    </div>
+                </div>
 
-                <input type="text" id="searchDirectorate" onkeyup="findDirectorate()" class="searchBox" placeholder="Search by Directorate...">
-
-
-<!--                 ***************************** SEARCH FEATURE *****************************-->
+                <!-- Search form -->
             </div>
             <div class="card-body p-0">
                 <table class="table table-striped projects" id="myTable">
